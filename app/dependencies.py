@@ -3,17 +3,16 @@ from typing import Annotated, Union
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.db.db import fake_users_db
-from app.models.auth import TokenData
-from app.models.user import User, UserInDB
+from app.schemas import UserInDB, TokenData, User
+from app.utils import verify_password
 
 SECRET_KEY = "53d6391adbae0f4b765b3e77f18e10d1aa4807f1fad967ee8cdb1e0f3d39bb7f"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_user(db, username: str):
@@ -69,11 +68,3 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def encrypt_password(password: str):
-    return pwd_context.hash(password)
