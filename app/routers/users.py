@@ -1,9 +1,10 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 
-from app import schemas, models
-from app.database import get_db
-from app.utils import encrypt_password
+import models
+import schemas
+from database import get_db
+from utils import encrypt_password
 
 app = APIRouter(prefix="/users", tags=["users"])
 

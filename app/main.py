@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import auth, users
+from routers import auth, users
 
 # import models
 
