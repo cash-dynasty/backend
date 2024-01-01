@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 
+from app.routers import auth, users
+
 # import models
-from database import engine
-from routers import auth
 
 # models.Base.metadata.create_all(bind=engine, checkfirst=True)
 
 app = FastAPI()
 
 app.include_router(auth.app)
+app.include_router(users.app)
 
 
 @app.get("/")
