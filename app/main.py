@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from . import models
-from .database import engine
-from .routers import auth
+# import models
+from database import engine
+from routers import auth
 
 # models.Base.metadata.create_all(bind=engine, checkfirst=True)
 
@@ -13,4 +13,4 @@ app.include_router(auth.app)
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"message": "Hello World"}

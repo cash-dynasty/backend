@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
-from app.db.db import fake_users_db
-from app.schemas import UserInDB, TokenData, User
-from app.utils import verify_password
+from db.db import fake_users_db
+from schemas import UserInDB, TokenData, User
+from utils import verify_password
 
 SECRET_KEY = "53d6391adbae0f4b765b3e77f18e10d1aa4807f1fad967ee8cdb1e0f3d39bb7f"
 ALGORITHM = "HS256"
