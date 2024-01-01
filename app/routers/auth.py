@@ -4,9 +4,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.db.db import fake_users_db
-from ..dependencies import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from ..schemas import Token
+from db.db import fake_users_db
+from dependencies import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from schemas import Token
 
 app = APIRouter(
     prefix="/auth",
