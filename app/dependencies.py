@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Annotated, Union
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -22,7 +23,6 @@ def get_user(db, username: str):
 
 
 def authenticate_user(fake_db, username: str, password: str):
-    print(username, password)
     user = get_user(fake_db, username)
     if not user:
         return False
@@ -45,15 +45,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username)
+    user = get_user(fake_users_db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
 
-async def get_current_active_user(
-        current_user: Annotated[User, Depends(get_current_user)]
-):
+async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
