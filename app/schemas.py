@@ -8,7 +8,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    email: str | None = None
 
 
 # ////////// USER //////////
@@ -16,10 +16,6 @@ class User(BaseModel):
     username: str
     email: str | None = None
     disabled: bool | None = None
-
-
-class UserInDB(User):
-    hashed_password: str
 
 
 class UserCreate(BaseModel):
