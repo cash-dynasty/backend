@@ -3,13 +3,15 @@ from typing import Annotated
 from fastapi import FastAPI, Depends
 
 from dependencies import get_current_active_user
-from routers import auth, users
+from routers import auth, users, test
 from schemas import User
 
 app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(test.router)
+app.include_router(test.router_public)
 
 
 @app.get("/")
