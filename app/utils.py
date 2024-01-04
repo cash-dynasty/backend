@@ -1,7 +1,9 @@
 import resend
 from passlib.context import CryptContext
 
-resend.api_key = "re_gKSV3gL4_HERpk4eofjnbJ6Z36wH5dTyf"
+from settings import RESEND_API_KEY
+
+resend.api_key = RESEND_API_KEY
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -13,7 +15,7 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-def send_user_create_email_confirmation(email: str, token: str):
+def send_user_create_confirmation_email(email: str, token: str):
     with open("templates/testemail.html", "r") as file:
         html = file.read()
         html = html.replace("{{{TOKEN}}}", token)
