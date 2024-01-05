@@ -12,8 +12,7 @@ import models.user
 import schemas.auth
 import schemas.user
 from database import get_db
-from settings import ALGORITHM, ACCESS_TOKEN_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, \
-    REFRESH_TOKEN_EXPIRE_MINUTES
+from settings import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -52,7 +51,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, ACCESS_TOKEN_SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.ACCESS_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
@@ -78,7 +77,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, ACCESS_TOKEN_SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.ACCESS_TOKEN_SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
@@ -89,7 +88,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, REFRESH_TOKEN_SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.REFRESH_TOKEN_SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
@@ -98,7 +97,7 @@ async def authorize(request: Request, response: Response, token: str = Depends(o
     # print(token)
     error = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token')
     try:
-        data = jwt.decode(token, REFRESH_TOKEN_SECRET_KEY, ALGORITHM)
+        data = jwt.decode(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
         # print(data)
         if 'sub' not in data:
             raise error
@@ -112,18 +111,19 @@ async def authorize(request: Request, response: Response, token: str = Depends(o
             raise error
         data = {'sub': user}
 
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         new_access_token = create_access_token(data=data, expires_delta=access_token_expires)
         new_refresh_token = create_refresh_token(data=data, expires_delta=refresh_token_expires)
 
-        response.set_cookie('access_token', new_access_token, ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                            ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, True, 'lax')
+        response.set_cookie('access_token', new_access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, True, 'lax')
         response.set_cookie('refresh_token', new_refresh_token,
-                            REFRESH_TOKEN_EXPIRE_MINUTES * 60, REFRESH_TOKEN_EXPIRE_MINUTES * 60, '/', None, False,
+                            settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, '/',
+                            None, False,
                             True, 'lax')
-        response.set_cookie('logged_in', 'True', ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                            ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, False, 'lax')
+        response.set_cookie('logged_in', 'True', settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, False, 'lax')
         # return {"access_token": new_access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
         return {"access_token": new_access_token, "token_type": "bearer"}
     except JWTError:
