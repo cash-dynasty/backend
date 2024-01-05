@@ -1,8 +1,8 @@
 import resend
 
-from settings import RESEND_API_KEY
+from settings import settings
 
-resend.api_key = RESEND_API_KEY
+resend.api_key = settings.RESEND_API_KEY
 
 
 def send_user_create_confirmation_email(email: str, token: str):

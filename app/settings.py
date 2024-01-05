@@ -1,15 +1,20 @@
-import os
+from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-from dotenv import find_dotenv, load_dotenv
+load_dotenv()
 
-load_dotenv(find_dotenv())
 
-POSTGRESQL_CONNECTION_URL = os.environ.get("POSTGRESQL_CONNECTION_URL")
-ACCESS_TOKEN_SECRET_KEY = os.environ.get("ACCESS_TOKEN_SECRET_KEY")
-REFRESH_TOKEN_SECRET_KEY = os.environ.get("REFRESH_TOKEN_SECRET_KEY")
-ALGORITHM = os.environ.get("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))  # TODO fix this
-# ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
-REFRESH_TOKEN_EXPIRE_MINUTES = int(os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES"))  # TODO fix this
-# REFRESH_TOKEN_EXPIRE_MINUTES = os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES")
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+class Settings(BaseSettings):
+    class Config:
+        env_file = '.env'
+
+    POSTGRESQL_CONNECTION_URL: str
+    ACCESS_TOKEN_SECRET_KEY: str
+    REFRESH_TOKEN_SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int
+    RESEND_API_KEY: str
+
+
+settings = Settings()
