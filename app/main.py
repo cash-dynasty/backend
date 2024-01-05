@@ -2,9 +2,9 @@ from typing import Annotated
 
 from fastapi import FastAPI, Depends
 
-from dependencies import get_current_active_user
+import schemas.user
 from routers import auth, users, test
-from schemas import User
+from utils.auth import get_current_active_user
 
 app = FastAPI()
 
@@ -20,5 +20,5 @@ def read_root():
 
 
 @app.get("/protected")
-def read_protected_endpoint(current_user: Annotated[User, Depends(get_current_active_user)]):
+def read_protected_endpoint(current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
     return {"message": "This is a protected endpoint."}

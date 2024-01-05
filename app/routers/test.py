@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from dependencies import get_current_active_user
+from utils.auth import get_current_active_user
 
 # Na tą chwilę zostawiam. Jak uznasz, że możemy to wywalić, to feel free
 
