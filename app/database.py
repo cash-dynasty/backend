@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://root:testtesttest@130.162.55.95:5433/cashdynastydb"
+from settings import POSTGRESQL_CONNECTION_URL
+
+SQLALCHEMY_DATABASE_URL = POSTGRESQL_CONNECTION_URL
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
