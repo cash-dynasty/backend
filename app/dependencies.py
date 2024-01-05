@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 import models
 from database import get_db
 from schemas import TokenData, User
-from settings import SECRET_KEY, ALGORITHM
+from settings import ALGORITHM, ACCESS_TOKEN_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY
 from utils import verify_password
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -83,7 +83,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def authorize(request: Request, response: Response, token: str = Depends(oauth2_scheme)):
-    #TODO Amadeusz weź to przepisz
+    # TODO Amadeusz weź to przepisz
     print(token)
     error = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token')
     try:
