@@ -1,16 +1,14 @@
+.PHONY: configure
+configure:
+	pip install -r requirements.txt
+	pre-commit install
+
 .PHONY: start
 start:
-	@echo Starting configure stage...
-	bash run.sh
-
-.PHONY: check
-check:
-	@echo Starting lint stage...
-	flake8 .
-	isort --check-only .
+	@bash run.sh
 
 .PHONY: lint
 lint:
-	@echo Starting lint stage...
-	flake8 .
-	isort .
+	isort app/
+	ruff check --fix app/
+	black app/

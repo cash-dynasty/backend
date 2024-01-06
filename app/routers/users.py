@@ -1,14 +1,14 @@
-from fastapi import APIRouter, status, Depends
-from sqlalchemy.orm import Session
-
 import models.user
 import schemas.user
 from database import get_db
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 from utils.auth import get_password_hash
+
 
 router = APIRouter(
     prefix="/users",
-    tags=["users"]
+    tags=["users"],
 )
 
 

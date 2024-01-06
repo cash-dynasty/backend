@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import FastAPI, Depends
-
 import schemas.user
-from routers import auth, users, test
+from fastapi import Depends, FastAPI
+from routers import auth, test, users
 from utils.auth import get_current_active_user
+
 
 app = FastAPI()
 
