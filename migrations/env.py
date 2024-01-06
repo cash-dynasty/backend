@@ -9,7 +9,7 @@ from sqlalchemy import pool
 from app.settings import settings
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-APP_DIR = os.path.join(BASE_DIR, '../app')
+APP_DIR = os.path.join(BASE_DIR, "../app")
 sys.path.append(APP_DIR)
 
 from app.database import Base
@@ -18,7 +18,7 @@ from app.database import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option('sqlalchemy.url', settings.POSTGRESQL_CONNECTION_URL)
+config.set_main_option("sqlalchemy.url", settings.POSTGRESQL_CONNECTION_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

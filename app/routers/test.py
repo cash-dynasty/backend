@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends
-
 from utils.auth import get_current_active_user
 
-# Na tą chwilę zostawiam. Jak uznasz, że możemy to wywalić, to feel free
 
 router = APIRouter(
     prefix="/test",
@@ -16,7 +14,7 @@ router_public = APIRouter(
 )
 
 
-@router.get("/1", )
+@router.get("/1")
 async def first_test_protected():
     return {"message": "first protected endpoint"}
 

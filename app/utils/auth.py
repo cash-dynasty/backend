@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 
-import sqlalchemy
-from fastapi import Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from sqlalchemy.orm import Session
-
 import models.user
 import schemas.auth
 import schemas.user
+import sqlalchemy
 from database import get_db
+from fastapi import Depends, HTTPException, Request, Response, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 from settings import settings
+from sqlalchemy.orm import Session
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -95,35 +95,63 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
 async def authorize(request: Request, response: Response, token: str = Depends(oauth2_scheme)):
     # TODO Amadeusz weź to przepisz
     # print(token)
-    error = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token')
+    error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="invalid token",
+    )
     try:
         data = jwt.decode(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
         # print(data)
-        if 'sub' not in data:
+        if "sub" not in data:
             raise error
 
-        user = data['sub']
+        user = data["sub"]
         # print(user)
 
-        refresh_token_from_cookie = request.cookies.get('refresh_token')
+        refresh_token_from_cookie = request.cookies.get("refresh_token")
         # print(refresh_token_from_cookie)
         if token != refresh_token_from_cookie:
             raise error
-        data = {'sub': user}
+        data = {"sub": user}
 
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         new_access_token = create_access_token(data=data, expires_delta=access_token_expires)
         new_refresh_token = create_refresh_token(data=data, expires_delta=refresh_token_expires)
 
-        response.set_cookie('access_token', new_access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, True, 'lax')
-        response.set_cookie('refresh_token', new_refresh_token,
-                            settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, '/',
-                            None, False,
-                            True, 'lax')
-        response.set_cookie('logged_in', 'True', settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, False, 'lax')
+        response.set_cookie(
+            "access_token",
+            new_access_token,
+            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            "/",
+            None,
+            False,
+            True,
+            "lax",
+        )
+        response.set_cookie(
+            "refresh_token",
+            new_refresh_token,
+            settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+            settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+            "/",
+            None,
+            False,
+            True,
+            "lax",
+        )
+        response.set_cookie(
+            "logged_in",
+            "True",
+            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            "/",
+            None,
+            False,
+            False,
+            "lax",
+        )
         # return {"access_token": new_access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
         return {"access_token": new_access_token, "token_type": "bearer"}
     except JWTError:

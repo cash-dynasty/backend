@@ -1,14 +1,14 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-
 import schemas.auth
 from database import get_db
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.security import OAuth2PasswordRequestForm
 from settings import settings
-from utils.auth import authenticate_user, create_access_token, create_refresh_token, authorize
+from sqlalchemy.orm import Session
+from utils.auth import authenticate_user, authorize, create_access_token, create_refresh_token
+
 
 router = APIRouter(
     prefix="/auth",
@@ -17,8 +17,9 @@ router = APIRouter(
 
 
 @router.post("/token", response_model=schemas.auth.Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 response: Response, db: Session = Depends(get_db)):
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, db: Session = Depends(get_db)
+):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -31,14 +32,39 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
     refresh_token = create_refresh_token(data={"sub": user.email}, expires_delta=refresh_token_expires)
 
-    response.set_cookie('access_token', access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, True, 'lax')
-    response.set_cookie('refresh_token', refresh_token,
-                        settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60, '/',
-                        None, False, True,
-                        'lax')
-    response.set_cookie('logged_in', 'True', settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, '/', None, False, False, 'lax')
+    response.set_cookie(
+        "access_token",
+        access_token,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "/",
+        None,
+        False,
+        True,
+        "lax",
+    )
+    response.set_cookie(
+        "refresh_token",
+        refresh_token,
+        settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+        settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+        "/",
+        None,
+        False,
+        True,
+        "lax",
+    )
+    response.set_cookie(
+        "logged_in",
+        "True",
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "/",
+        None,
+        False,
+        False,
+        "lax",
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
