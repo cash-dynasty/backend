@@ -26,3 +26,8 @@ make start
 ```bash
 make lint
 ```
+
+## Testing
+```bash
+make test
+```
