@@ -21,4 +21,4 @@ test:
 
 .PHONY: test-watch
 test-watch:
-	ptw tests/ -vs
+	ptw -vs tests/

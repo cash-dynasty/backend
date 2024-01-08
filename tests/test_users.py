@@ -1,16 +1,18 @@
+import os
 import random
+import sys
 
 import fastapi
 import pytest
 from fastapi.testclient import TestClient
-from utils.tests import inject_source_path
 
 from app.routers.users import router
 
 
 client = TestClient(router)
 
-inject_source_path()
+sys.path.append(os.getcwd())
+sys.path.append("./app")
 
 
 def test_create_user_success():
@@ -23,5 +25,5 @@ def test_create_user_success():
 def test_create_user_wrong_email():
     mocked_wrong_email = "user"
     with pytest.raises(fastapi.exceptions.RequestValidationError) as EmailValidation:
-        response = client.post("/users/create", json={"password": "testpassword", "email": mocked_wrong_email})
+        client.post("/users/create", json={"password": "testpassword", "email": mocked_wrong_email})
     assert "value is not a valid email" in EmailValidation.value.errors()[0]["msg"]
