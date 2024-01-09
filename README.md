@@ -18,16 +18,16 @@ make configure
 2. Fill in the .env file.
 
 ## Running
-```bash
+```
 make start
 ```
 
 ## Linting
-```bash
+```
 make lint
 ```
 
 ## Testing
-```bash
+```
 make test
 ```

@@ -1,14 +1,13 @@
-import os
 import sys
 
 from fastapi.testclient import TestClient
 
 
-sys.path.append(os.getcwd())
+sys.path.append(".")
 sys.path.append("./app")
 
-# ruff: noqa: E402
-from app.main import app
+
+from app.main import app  # noqa: E402
 
 
 client = TestClient(app)

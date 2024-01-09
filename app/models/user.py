@@ -1,9 +1,13 @@
-from database import Base
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import declarative_base
 
 
-class User(Base):
+UserBase = declarative_base()
+
+
+class User(UserBase):
     __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     password = Column(String)
