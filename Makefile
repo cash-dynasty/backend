@@ -18,3 +18,7 @@ lint:
 .PHONY: test
 test:
 	pytest
+
+.PHONY: test-watch
+test-watch:
+	ptw -vs tests/
