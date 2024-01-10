@@ -1,7 +1,6 @@
+from database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Relationship
-
-from app.database import Base
 
 
 class Company(Base):

@@ -3,11 +3,10 @@ import re
 import schemas.game.start
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
+from models.user import User as MUser
 from schemas.user import User
 from sqlalchemy.orm import Session
 from utils.auth import get_current_active_user, get_current_user
-
-from app.models.user import User as MUser
 
 
 router = APIRouter(

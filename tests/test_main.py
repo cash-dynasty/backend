@@ -3,11 +3,10 @@ import sys
 from fastapi.testclient import TestClient
 
 
-sys.path.append(".")
 sys.path.append("./app")
 
 
-from app.main import app  # noqa: E402
+from main import app  # noqa: E402
 
 
 client = TestClient(app)
