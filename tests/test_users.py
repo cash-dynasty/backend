@@ -4,13 +4,11 @@ import pydantic_core
 import pytest
 
 
-sys.path.append(".")
 sys.path.append("./app")
 
 
 import schemas.user  # noqa: E402
-
-from app.routers.users import create_user  # noqa: E402
+from routers.users import create_user  # noqa: E402
 
 
 @pytest.mark.asyncio

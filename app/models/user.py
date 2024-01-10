@@ -1,11 +1,8 @@
+from database import Base
 from sqlalchemy import Boolean, Column, Integer, String
-from sqlalchemy.orm import declarative_base
 
 
-UserBase = declarative_base()
-
-
-class User(UserBase):
+class User(Base):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
 
