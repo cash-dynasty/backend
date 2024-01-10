@@ -5,6 +5,7 @@ class User(BaseModel):
     username: str
     email: str | None = None
     disabled: bool | None = None
+    player_name: str | None = None
 
 
 class UserCreate(BaseModel):
