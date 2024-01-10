@@ -5,13 +5,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 
-sys.path.append(".")
 sys.path.append("./app")
 
 
-from database import SQLALCHEMY_DATABASE_URL  # noqa: E402
-
-from app.models.config import metadatas  # noqa: E402
+from database import SQLALCHEMY_DATABASE_URL, Base  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -21,11 +18,8 @@ def engine():
 
 @pytest.fixture(scope="session")
 def tables(engine):
-    for metadata in metadatas:
-        metadata.create_all(engine)
+    Base.metadata.create_all(engine)
     yield
-    # for metadata in metadatas:
-    #     metadata.drop_all(engine)
 
 
 @pytest.fixture
