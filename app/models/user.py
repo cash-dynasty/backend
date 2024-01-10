@@ -1,11 +1,9 @@
 from sqlalchemy import Boolean, Column, Integer, String
-from sqlalchemy.orm import declarative_base
+
+from app.database import Base
 
 
-UserBase = declarative_base()
-
-
-class User(UserBase):
+class User(Base):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
 
@@ -13,3 +11,4 @@ class User(UserBase):
     password = Column(String)
     email = Column(String, unique=True, index=True)
     is_active = Column(Boolean, default=False)
+    player_name = Column(String, unique=True, index=True, default="", nullable=True)
