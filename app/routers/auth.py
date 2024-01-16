@@ -16,6 +16,15 @@ router = APIRouter(
 )
 
 
+# TODO zastanowić się nad nazwami endpointów
+
+# TODO nie logować użytkownika (nie zwracać tokenu), jeśli nie jest aktywny
+
+
+# 1. poprawne logowanie
+# 2. niepoprawny email
+# 3. email nie istnieje w bazie
+# 4. niepoprawne hasło
 @router.post("/token", response_model=schemas.auth.Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, db: Session = Depends(get_db)
@@ -68,6 +77,9 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+# 1. poprawny refresh
+# 2. błędny/nieważny refresh token
+# 3. (?) nie ma tokena w ciastku
 @router.post("/refresh")
 async def login_for_refresh_token(token_data: dict = Depends(authorize)):
     return token_data
