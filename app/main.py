@@ -2,7 +2,7 @@ from typing import Annotated
 
 import schemas.user
 from fastapi import Depends, FastAPI
-from routers import auth, test, users
+from routers import auth, users
 from utils.auth import get_current_active_user
 
 
@@ -10,8 +10,6 @@ app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(users.router)
-app.include_router(test.router)
-app.include_router(test.router_public)
 
 
 @app.get("/")

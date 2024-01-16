@@ -1,18 +1,24 @@
 import sys
 
-from fastapi.testclient import TestClient
-
 
 sys.path.append("./app")
 
 
-from main import app  # noqa: E402
+def test_read_root(client):
+    res = client.get("/")
+    assert res.status_code == 200
+    assert res.json() == {"message": "Hello World"}
 
 
-client = TestClient(app)
+def test_read_protected_endpoint_by_active_user(authorized_active_client):
+    res = authorized_active_client.get("/protected")
+    assert res.status_code == 200
+    # assert res.json()["message"] == "This is a protected endpoint."
+    assert res.json() == {"message": "This is a protected endpoint."}
 
 
-def test_read_root():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Hello World"}
+def test_read_protected_endpoint_by_inactive_user(authorized_client):
+    res = authorized_client.get("/protected")
+    assert res.status_code == 403
+    # assert res.json()["detail"] == "Inactive user"
+    assert res.json() == {"detail": "Inactive user"}

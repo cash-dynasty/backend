@@ -29,7 +29,7 @@ def get_password_hash(password: str):
 def get_user(db: Session, email: str):
     # TODO zabezpieczyłem za pomocą try/catch, nie wiem czy jest idealnie, ale chyba wystarczająco dobrze i spełnia cel
     try:
-        user = db.query(models.user.User).filter(models.user.User.email == email).one()
+        user = db.query(models.user.User).filter(models.user.User.email == email).first()
     except sqlalchemy.exc.NoResultFound:
         user = None
     return user
@@ -66,7 +66,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
 
 async def get_current_active_user(current_user: Annotated[schemas.user.User, Depends(get_current_user)]):
     if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")
     return current_user
 
 

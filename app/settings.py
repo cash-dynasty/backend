@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     POSTGRESQL_CONNECTION_URL: str
+    POSTGRESQL_CONNECTION_URL_TEST: str
     ACCESS_TOKEN_SECRET_KEY: str
     REFRESH_TOKEN_SECRET_KEY: str
     ALGORITHM: str
