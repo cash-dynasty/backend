@@ -21,5 +21,5 @@ def read_root():
 
 
 @app.get("/protected")
-def read_protected_endpoint(current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
+def read_protected_endpoint(current_user: Annotated[schemas.user.UserBase, Depends(get_current_active_user)]):
     return {"message": "This is a protected endpoint."}

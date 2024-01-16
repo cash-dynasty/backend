@@ -12,8 +12,8 @@ router = APIRouter(
 )
 
 
-@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserOut)
-async def create_user(user: schemas.user.UserCreate, db: Session = Depends(get_db)):
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserCreateRes)
+async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(get_db)):
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())

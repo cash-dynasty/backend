@@ -1,20 +1,23 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
-class User(BaseModel):
-    username: str
+class UserBase(BaseModel):
     email: str | None = None
-    disabled: bool | None = None
+    is_active: bool
     player_name: str | None = None
 
+    model_config = ConfigDict(from_attributes=True)
 
-class UserCreate(BaseModel):
+
+class User(UserBase):
+    id: int
+    password: str
+
+
+class UserCreateReq(BaseModel):
     email: EmailStr
     password: str
 
 
-class UserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class UserCreateRes(UserBase):
     id: int
-    email: EmailStr

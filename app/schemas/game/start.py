@@ -1,10 +1,12 @@
-from pydantic import BaseModel
-from schemas.user import User
+from pydantic import BaseModel, ConfigDict
+from schemas.user import UserBase
 
 
-class SetPlayerNameIn(BaseModel):
+class PlayerSetNicknameReq(BaseModel):
     player_name: str
 
 
-class SetPlayerNameOut(BaseModel):
-    updated_user: User
+class PlayerSetNicknameRes(UserBase):
+    pass
+
+    model_config = ConfigDict(from_attributes=True)

@@ -2,6 +2,7 @@ import sys
 from logging.config import fileConfig
 
 from alembic import context
+import alembic_postgresql_enum  # noqa: F401
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -28,8 +29,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 
 # The following won't be referenced, but *have* to be imported to populate `Base.metadata`
-from models.user import User  # noqa: E402
-from models.company import Company  # noqa: E402
+
 target_metadata = Base.metadata
 
 
