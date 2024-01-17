@@ -6,29 +6,41 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 # TODO przemodelować wszystko
 
 
-class User(BaseModel):
+class UserBase(BaseModel):
     username: str
     email: EmailStr | None = None
     is_active: bool | None = None
 
 
-class UserCreate(BaseModel):
+class ActivationTokenBase(BaseModel):
+    token: str
+    expiration_date: datetime
+    user_id: int
+
+
+class User(UserBase):
+    id: int
+    activation_tokens: list[ActivationTokenBase]
+
+    class Config:
+        orm_mode = True
+
+
+class UserCreateReq(BaseModel):
     email: EmailStr
     password: str
 
 
-class UserOut(BaseModel):
+class UserCreateRes(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     email: EmailStr
 
 
-class UserActivation(BaseModel):
+class UserActivationReq(BaseModel):
     email: EmailStr
 
 
-class ActivationToken(BaseModel):
-    token: str
-    expiration_date: datetime
-    user_id: int
+class ActivationToken(ActivationTokenBase):
+    id: int

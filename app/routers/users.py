@@ -21,8 +21,8 @@ router = APIRouter(
 # 2. Email niepoprawny
 # 3. User z takim emailem już istnieje
 # 4. Hasło za krótkie/długie, brak wymaganych znaków (obecnie tego nie sprawdzamy)
-@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserOut)
-async def create_user(user: schemas.user.UserCreate, db: Session = Depends(get_db)):
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserCreateRes)
+async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(get_db)):
     user_data = db.query(models.user.User).filter(models.user.User.email == user.email).first()
     if user_data:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
@@ -46,7 +46,7 @@ async def create_user(user: schemas.user.UserCreate, db: Session = Depends(get_d
 # 3. nie ma takiego maila w bazie
 # 4. niepoprawny token dla danego usera
 @router.patch("/activate")
-async def activate_user(user: schemas.user.UserActivation, db: Session = Depends(get_db)):
+async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depends(get_db)):
     user = db.query(models.user.User).filter(models.user.User.email == user.email).first()
     user.is_active = True
     db.commit()
