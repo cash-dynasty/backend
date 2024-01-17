@@ -1,9 +1,14 @@
+import os
+import secrets
+from datetime import datetime, timedelta
+
 import models.user
 import schemas.user
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from utils.auth import get_password_hash
+from utils.email import send_user_create_confirmation_email
 
 
 router = APIRouter(
@@ -24,9 +29,15 @@ async def create_user(user: schemas.user.UserCreate, db: Session = Depends(get_d
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())
+    token = "".join(secrets.token_hex(32))
+    token_expiration_date = (datetime.now() + timedelta(hours=1)).isoformat()
     db.add(new_user)
     db.commit()
-    db.refresh(new_user)
+    new_token = models.user.ActivationToken(token=token, user_id=new_user.id, expiration_date=token_expiration_date)
+    db.add(new_token)
+    db.commit()
+    if "TESTING" not in os.environ:
+        send_user_create_confirmation_email(new_user.email, new_token.token)
     return new_user
 
 
