@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import timedelta
 
@@ -20,6 +21,13 @@ SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def enable_test_mode():
+    os.environ["TESTING"] = "True"
+    yield
+    os.environ.pop("TESTING", None)
 
 
 @pytest.fixture()
@@ -48,7 +56,7 @@ def client(session):
 
 @pytest.fixture
 def test_user(client):
-    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
+    user_data = {"email": "delivered@resend.dev", "password": "password123"}
     res = client.post("/users/create", json=user_data)
 
     assert res.status_code == 201
@@ -60,7 +68,7 @@ def test_user(client):
 
 @pytest.fixture
 def active_test_user(client):
-    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
+    user_data = {"email": "delivered@resend.dev", "password": "password123"}
     res = client.post("/users/create", json=user_data)
 
     assert res.status_code == 201

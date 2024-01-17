@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -24,3 +26,9 @@ class UserOut(BaseModel):
 
 class UserActivation(BaseModel):
     email: EmailStr
+
+
+class ActivationToken(BaseModel):
+    token: str
+    expiration_date: datetime
+    user_id: int
