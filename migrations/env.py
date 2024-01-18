@@ -28,7 +28,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 
 # The following won't be referenced, but *have* to be imported to populate `Base.metadata`
-from models.user import User  # noqa: E402
+from models.user import User, ActivationToken  # noqa: E402, F401
 target_metadata = Base.metadata
 
 
