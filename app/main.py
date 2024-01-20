@@ -13,10 +13,10 @@ app.include_router(users.router)
 
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+def read_root_endpoint():
+    return {"message": "Hello from public endpoint!"}
 
 
 @app.get("/protected")
 def read_protected_endpoint(current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
-    return {"message": "This is a protected endpoint."}
+    return {"message": "Hello from protected endpoint!"}
