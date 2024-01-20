@@ -30,7 +30,7 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())
     token = "".join(secrets.token_hex(32))
-    token_expiration_date = (datetime.now() + timedelta(hours=1)).isoformat()
+    token_expiration_date = (datetime.utcnow() + timedelta(hours=1)).isoformat()
     db.add(new_user)
     db.commit()
     new_token = models.user.ActivationToken(token=token, user_id=new_user.id, expiration_date=token_expiration_date)

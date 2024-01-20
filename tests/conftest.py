@@ -24,7 +24,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 @pytest.fixture(scope="session", autouse=True)
-def enable_test_mode():
+def test_mode():
     os.environ["TESTING"] = "YES"
     yield
     os.environ.pop("TESTING", None)
