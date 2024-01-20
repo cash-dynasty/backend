@@ -3,6 +3,7 @@ SHELL := /bin/bash
 .PHONY: configure
 configure:
 	pip install -r requirements.txt
+	pip install -U pip
 	pre-commit install
 
 .PHONY: start
