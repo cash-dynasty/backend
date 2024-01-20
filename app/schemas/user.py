@@ -3,9 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
-# TODO przemodelować wszystko
-
-
 class UserBase(BaseModel):
     username: str
     email: EmailStr | None = None

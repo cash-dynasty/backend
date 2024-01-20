@@ -1,6 +1,5 @@
 import os
 import sys
-from datetime import timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +12,6 @@ sys.path.append("./app")
 from database import Base, get_db  # noqa: E402
 from main import app  # noqa: E402
 from settings import settings  # noqa: E402
-from utils.auth import create_access_token  # noqa: E402
 
 
 SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST
@@ -32,7 +30,6 @@ def test_mode():
 
 @pytest.fixture()
 def session():
-    print("my session fixture ran")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
@@ -55,46 +52,44 @@ def client(session):
 
 
 @pytest.fixture
-def test_user(client):
+def inactive_test_user(client):
     user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
     res = client.post("/users/create", json=user_data)
-
     assert res.status_code == 201
-
     new_user = res.json()
     new_user["password"] = user_data["password"]
     return new_user
 
 
 @pytest.fixture
-def active_test_user(client):
-    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
-    res = client.post("/users/create", json=user_data)
-
-    assert res.status_code == 201
-
-    res = client.patch("/users/activate", json={"email": user_data["email"]})
-
+def test_user(client, inactive_test_user):
+    res = client.patch("/users/activate", json={"email": inactive_test_user["email"]})
     assert res.status_code == 200
-
     new_user = res.json()
-    new_user["password"] = user_data["password"]
+    new_user["password"] = inactive_test_user["password"]
+    assert new_user["is_active"]
     return new_user
 
 
 @pytest.fixture
 def authorized_client(client, test_user):
-    access_token = create_access_token(
-        {"sub": test_user["email"]}, timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    res = client.post(
+        "/auth/token",
+        data={"username": test_user["email"], "password": test_user["password"]},
     )
+    assert res.status_code == 200
+    access_token = res.json()["access_token"]
     client.headers = {**client.headers, "Authorization": f"Bearer {access_token}"}
     return client
 
 
 @pytest.fixture
-def authorized_active_client(client, active_test_user):
-    access_token = create_access_token(
-        {"sub": active_test_user["email"]}, timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+def client_with_invalid_token(client, test_user):
+    res = client.post(
+        "/auth/token",
+        data={"username": test_user["email"], "password": test_user["password"]},
     )
-    client.headers = {**client.headers, "Authorization": f"Bearer {access_token}"}
+    assert res.status_code == 200
+    access_token = res.json()["access_token"]
+    client.headers = {**client.headers, "Authorization": f"Bearer {access_token}x"}
     return client
