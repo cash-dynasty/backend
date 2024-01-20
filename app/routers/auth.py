@@ -2,13 +2,21 @@ from datetime import timedelta
 from typing import Annotated
 
 import schemas.auth
+import schemas.user
 from database import get_db
 from exceptions import CouldNotValidateCredentialsException, InactiveUserException, IncorrectUsernameOrPasswordException
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from settings import settings
 from sqlalchemy.orm import Session
-from utils.auth import add_jwt_token_cookie, authenticate_user, create_jwt_token, get_data_from_jwt_token, oauth2_scheme
+from utils.auth import (
+    add_jwt_token_cookie,
+    authenticate_user,
+    create_jwt_token,
+    get_current_active_user,
+    get_data_from_jwt_token,
+    oauth2_scheme,
+)
 
 
 router = APIRouter(
@@ -107,3 +115,12 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
         "lax",
     )
     return {"access_token": new_access_token, "token_type": "bearer"}
+
+
+@router.post("/logout")
+async def logout(response: Response, current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.set_cookie("logged_in", "False")
+    # TODO czy powinniśmy invalidować tokeny po usunięciu ich z ciasteczek?
+    return {"message": "logged out"}

@@ -82,7 +82,7 @@ def add_jwt_token_cookie(response: Response, name: str, value: str, expires: dat
         expires,
         "/",
         None,
-        False,
+        False,  # TODO przestawić na True?
         True,
         "lax",
     )

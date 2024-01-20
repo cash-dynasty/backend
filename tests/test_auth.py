@@ -111,3 +111,33 @@ def test_refresh_token(authorized_client, test_user):
     time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {new_refresh_token}"})
     assert res.status_code == 200
+
+
+def test_logout_user_with_access_token(authorized_client):
+    res = authorized_client.post("/auth/logout")
+    assert res.status_code == 200
+    assert res.json() == {"message": "logged out"}
+    cookies = res.cookies
+    assert not cookies.get("access_token")
+    assert not cookies.get("refresh_token")
+    assert cookies.get("logged_in") == "False"
+
+
+def test_logout_user_with_refresh_token(authorized_client):
+    cookies = authorized_client.cookies
+    refresh_token = cookies.get("refresh_token")
+    res = authorized_client.post("/auth/logout", headers={"Authorization": f"Bearer {refresh_token}"})
+    assert res.status_code == 401
+    assert res.json() == {"detail": "Could not validate credentials"}
+
+
+def test_logout_user_with_invalid_token(client_with_invalid_token):
+    res = client_with_invalid_token.post("/auth/logout")
+    assert res.status_code == 401
+    assert res.json() == {"detail": "Could not validate credentials"}
+
+
+def test_logout_user_without_token(client):
+    res = client.post("/auth/logout")
+    assert res.status_code == 401
+    assert res.json() == {"detail": "Not authenticated"}
