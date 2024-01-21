@@ -33,11 +33,11 @@ def test_login_active_user(client, test_user):
     assert cookies["refresh_token"]
     assert token_data.access_token == cookies["access_token"]
     payload = jwt.decode(cookies["access_token"], settings.ACCESS_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    email = payload["sub"]
-    assert email == test_user["email"]
+    user_id = payload["uid"]
+    assert user_id == test_user["id"]
     payload = jwt.decode(cookies["refresh_token"], settings.REFRESH_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    email = payload["sub"]
-    assert email == test_user["email"]
+    user_id = payload["uid"]
+    assert user_id == test_user["id"]
 
 
 @pytest.mark.parametrize(
@@ -81,11 +81,11 @@ def test_refresh_token(authorized_client, test_user):
     assert cookies["refresh_token"]
     assert token_data.access_token == cookies["access_token"]
     payload = jwt.decode(cookies["access_token"], settings.ACCESS_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    email = payload["sub"]
-    assert email == test_user["email"]
+    user_id = payload["uid"]
+    assert user_id == test_user["id"]
     payload = jwt.decode(cookies["refresh_token"], settings.REFRESH_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    email = payload["sub"]
-    assert email == test_user["email"]
+    user_id = payload["uid"]
+    assert user_id == test_user["id"]
 
     old_access_token = access_token
     old_refresh_token = refresh_token
