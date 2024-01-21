@@ -26,13 +26,18 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-def get_user(db: Session, email: str):
+def get_user_by_id(db: Session, user_id: int):
+    user = db.query(models.user.User).filter(models.user.User.id == user_id).first()
+    return user
+
+
+def get_user_by_email(db: Session, email: str):
     user = db.query(models.user.User).filter(models.user.User.email == email).first()
     return user
 
 
 def authenticate_user(db: Session, email: str, password: str):
-    user = get_user(db, email)
+    user = get_user_by_email(db, email)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -44,10 +49,9 @@ def get_data_from_jwt_token(token: str, secret_key: str, algorithm: str):
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
         user_id = payload.get("uid")
-        email = payload.get("sub")
-        if email is None:
+        if user_id is None:
             raise CouldNotValidateCredentialsException
-        user_data = schemas.auth.TokenData(uid=user_id, email=email)
+        user_data = schemas.auth.TokenData(uid=user_id)
     except ExpiredSignatureError:
         raise UnauthorizedException("Token has expired.")
     except JWTError:
@@ -57,7 +61,7 @@ def get_data_from_jwt_token(token: str, secret_key: str, algorithm: str):
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
     token_data = get_data_from_jwt_token(token, settings.ACCESS_TOKEN_SECRET_KEY, settings.ALGORITHM)
-    user = get_user(db, token_data.email)
+    user = get_user_by_id(db, token_data.uid)
     if user is None:
         raise CouldNotValidateCredentialsException
     return user

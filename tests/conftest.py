@@ -88,7 +88,7 @@ def authorized_client(client, test_user):
 @pytest.fixture
 def client_with_expired_token(client, test_user):
     access_token = create_jwt_token(
-        data={"sub": test_user["email"]},
+        data={"uid": test_user["id"]},
         expires_delta=timedelta(-1),
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,

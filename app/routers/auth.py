@@ -39,17 +39,20 @@ async def login_for_access_token(
     if not user.is_active:
         raise InactiveUserException
 
+    user_id = user.id
+    payload = {"uid": user_id}
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
 
     access_token = create_jwt_token(
-        data={"uid": user.id, "sub": user.email},
+        data=payload,
         expires_delta=access_token_expires,
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
     refresh_token = create_jwt_token(
-        data={"uid": user.id, "sub": user.email},
+        data=payload,
         expires_delta=refresh_token_expires,
         secret_key=settings.REFRESH_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
@@ -69,20 +72,19 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
 
     token_data = get_data_from_jwt_token(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
     user_id = token_data.uid
-    email = token_data.email
-    data = {"uid": user_id, "sub": email}
+    payload = {"uid": user_id}
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
 
     new_access_token = create_jwt_token(
-        data=data,
+        data=payload,
         expires_delta=access_token_expires,
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
     new_refresh_token = create_jwt_token(
-        data=data,
+        data=payload,
         expires_delta=refresh_token_expires,
         secret_key=settings.REFRESH_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
