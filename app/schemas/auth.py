@@ -7,4 +7,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    uid: int
     email: EmailStr

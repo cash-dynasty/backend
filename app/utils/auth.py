@@ -43,10 +43,11 @@ def authenticate_user(db: Session, email: str, password: str):
 def get_data_from_jwt_token(token: str, secret_key: str, algorithm: str):
     try:
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        user_id = payload.get("uid")
         email = payload.get("sub")
         if email is None:
             raise CouldNotValidateCredentialsException
-        user_data = schemas.auth.TokenData(email=email)
+        user_data = schemas.auth.TokenData(uid=user_id, email=email)
     except ExpiredSignatureError:
         raise UnauthorizedException("Token has expired.")
     except JWTError:
