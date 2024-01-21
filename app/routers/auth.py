@@ -43,13 +43,13 @@ async def login_for_access_token(
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
 
     access_token = create_jwt_token(
-        data={"sub": user.email},
+        data={"uid": user.id, "sub": user.email},
         expires_delta=access_token_expires,
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
     refresh_token = create_jwt_token(
-        data={"sub": user.email},
+        data={"uid": user.id, "sub": user.email},
         expires_delta=refresh_token_expires,
         secret_key=settings.REFRESH_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
@@ -68,8 +68,9 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
         raise CouldNotValidateCredentialsException
 
     token_data = get_data_from_jwt_token(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
+    user_id = token_data.uid
     email = token_data.email
-    data = {"sub": email}
+    data = {"uid": user_id, "sub": email}
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
