@@ -70,8 +70,9 @@ async def get_current_active_user(current_user: Annotated[schemas.user.User, Dep
 
 def create_jwt_token(data: dict, expires_delta: timedelta, secret_key: str, algorithm: str):
     to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
-    to_encode.update({"exp": expire})
+    issued_at = datetime.utcnow()
+    expiration_time = issued_at + expires_delta
+    to_encode.update({"iat": issued_at, "exp": expiration_time})  # TODO przetestować, że te pola znajdują się w tokenie
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
     return encoded_jwt
 
@@ -84,7 +85,7 @@ def add_jwt_token_cookie(response: Response, name: str, value: str, expires: dat
         expires,
         "/",
         None,
-        False,  # TODO przestawić na True?
+        False,  # TODO przestawić na True dla komunikacji https (na środowisku)
         True,
         "lax",
     )
