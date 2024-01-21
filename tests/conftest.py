@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,6 +13,7 @@ sys.path.append("./app")
 from database import Base, get_db  # noqa: E402
 from main import app  # noqa: E402
 from settings import settings  # noqa: E402
+from utils.auth import create_jwt_token  # noqa: E402
 
 
 SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST
@@ -79,6 +81,18 @@ def authorized_client(client, test_user):
     )
     assert res.status_code == 200
     access_token = res.json()["access_token"]
+    client.headers = {**client.headers, "Authorization": f"Bearer {access_token}"}
+    return client
+
+
+@pytest.fixture
+def client_with_expired_token(client, test_user):
+    access_token = create_jwt_token(
+        data={"sub": test_user["email"]},
+        expires_delta=timedelta(-1),
+        secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
     client.headers = {**client.headers, "Authorization": f"Bearer {access_token}"}
     return client
 
