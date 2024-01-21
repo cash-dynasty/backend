@@ -19,11 +19,10 @@ class ActivationTokenBase(BaseModel):
 
 
 class User(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     activation_tokens: list[ActivationTokenBase]
-
-    class Config:
-        orm_mode = True
 
 
 class UserCreateReq(BaseModel):

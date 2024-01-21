@@ -24,8 +24,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 @pytest.fixture(scope="session", autouse=True)
-def enable_test_mode():
-    os.environ["TESTING"] = "True"
+def test_mode():
+    os.environ["TESTING"] = "YES"
     yield
     os.environ.pop("TESTING", None)
 
@@ -56,7 +56,7 @@ def client(session):
 
 @pytest.fixture
 def test_user(client):
-    user_data = {"email": "delivered@resend.dev", "password": "password123"}
+    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
     res = client.post("/users/create", json=user_data)
 
     assert res.status_code == 201
@@ -68,7 +68,7 @@ def test_user(client):
 
 @pytest.fixture
 def active_test_user(client):
-    user_data = {"email": "delivered@resend.dev", "password": "password123"}
+    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
     res = client.post("/users/create", json=user_data)
 
     assert res.status_code == 201

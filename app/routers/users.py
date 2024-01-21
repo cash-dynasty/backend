@@ -21,8 +21,8 @@ router = APIRouter(
 # 2. Email niepoprawny
 # 3. User z takim emailem już istnieje
 # 4. Hasło za krótkie/długie, brak wymaganych znaków (obecnie tego nie sprawdzamy)
-@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserCreateRes)
-async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(get_db)):
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.user.UserOut)
+async def create_user(user: schemas.user.UserCreate, db: Session = Depends(get_db)):
     user_data = db.query(models.user.User).filter(models.user.User.email == user.email).first()
     if user_data:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
@@ -30,7 +30,7 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())
     token = "".join(secrets.token_hex(32))
-    token_expiration_date = (datetime.now() + timedelta(hours=1)).isoformat()
+    token_expiration_date = (datetime.utcnow() + timedelta(hours=1)).isoformat()
     db.add(new_user)
     db.commit()
     new_token = models.user.ActivationToken(token=token, user_id=new_user.id, expiration_date=token_expiration_date)
