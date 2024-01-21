@@ -5,10 +5,10 @@ import models.user
 import schemas.auth
 import schemas.user
 from database import get_db
-from exceptions import CouldNotValidateCredentialsException, InactiveUserException
+from exceptions import CouldNotValidateCredentialsException, InactiveUserException, UnauthorizedException
 from fastapi import Depends, Response
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from settings import settings
 from sqlalchemy.orm import Session
@@ -47,6 +47,8 @@ def get_data_from_jwt_token(token: str, secret_key: str, algorithm: str):
         if email is None:
             raise CouldNotValidateCredentialsException
         user_data = schemas.auth.TokenData(email=email)
+    except ExpiredSignatureError:
+        raise UnauthorizedException("Token has expired.")
     except JWTError:
         raise CouldNotValidateCredentialsException
     return user_data
