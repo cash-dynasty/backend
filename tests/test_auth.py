@@ -31,7 +31,6 @@ def test_login_active_user(client, test_user):
     cookies = res.cookies
     assert cookies["access_token"]
     assert cookies["refresh_token"]
-    assert cookies["logged_in"]
     assert token_data.access_token == cookies["access_token"]
     payload = jwt.decode(cookies["access_token"], settings.ACCESS_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
     email = payload["sub"]
@@ -80,7 +79,6 @@ def test_refresh_token(authorized_client, test_user):
     cookies = res.cookies
     assert cookies["access_token"]
     assert cookies["refresh_token"]
-    assert cookies["logged_in"]
     assert token_data.access_token == cookies["access_token"]
     payload = jwt.decode(cookies["access_token"], settings.ACCESS_TOKEN_SECRET_KEY, algorithms=[settings.ALGORITHM])
     email = payload["sub"]
@@ -120,7 +118,6 @@ def test_logout_user_with_access_token(authorized_client):
     cookies = res.cookies
     assert not cookies.get("access_token")
     assert not cookies.get("refresh_token")
-    assert cookies.get("logged_in") == "False"
 
 
 def test_logout_user_with_refresh_token(authorized_client):

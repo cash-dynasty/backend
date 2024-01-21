@@ -58,18 +58,6 @@ async def login_for_access_token(
     add_jwt_token_cookie(response, "access_token", access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    # TODO do usunięcia?
-    response.set_cookie(
-        "logged_in",
-        "True",
-        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        "/",
-        None,
-        False,
-        False,
-        "lax",
-    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -102,18 +90,6 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
     add_jwt_token_cookie(response, "access_token", new_access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", new_refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    # TODO do usunięcia?
-    response.set_cookie(
-        "logged_in",
-        "True",
-        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        "/",
-        None,
-        False,
-        False,
-        "lax",
-    )
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 
@@ -121,6 +97,4 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
 async def logout(response: Response, current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
-    response.set_cookie("logged_in", "False")
-    # TODO czy powinniśmy invalidować tokeny po usunięciu ich z ciasteczek?
     return {"message": "logged out"}
