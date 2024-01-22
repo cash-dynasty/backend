@@ -93,7 +93,7 @@ def test_refresh_token(authorized_client, test_user):
     new_access_token = res.cookies["access_token"]
     new_refresh_token = res.cookies["refresh_token"]
 
-    res = authorized_client.get("/protected", headers={"Authorization": f"Bearer {old_access_token}"})
+    res = authorized_client.get("/test/protected", headers={"Authorization": f"Bearer {old_access_token}"})
     assert res.status_code == 200
     assert res.json() == {"message": "Hello from protected endpoint!"}
 
@@ -102,7 +102,7 @@ def test_refresh_token(authorized_client, test_user):
     assert res.status_code == 401
     assert res.json() == {"detail": "Could not validate credentials"}
 
-    res = authorized_client.get("/protected", headers={"Authorization": f"Bearer {new_access_token}"})
+    res = authorized_client.get("/test/protected", headers={"Authorization": f"Bearer {new_access_token}"})
     assert res.status_code == 200
     assert res.json() == {"message": "Hello from protected endpoint!"}
 
