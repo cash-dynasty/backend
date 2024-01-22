@@ -19,16 +19,16 @@ def test_read_protected_endpoint(authorized_client):
 def test_read_protected_endpoint_with_invalid_token(client_with_invalid_token):
     res = client_with_invalid_token.get("/test/protected")
     assert res.status_code == 401
-    assert res.json() == {"detail": "Could not validate credentials"}
+    assert res.json() == {"message": "Could not validate credentials"}
 
 
 def test_read_protected_endpoint_with_expired_token(client_with_expired_token):
     res = client_with_expired_token.get("/test/protected")
     assert res.status_code == 401
-    assert res.json() == {"detail": "Token has expired."}
+    assert res.json() == {"message": "Token has expired."}
 
 
 def test_read_protected_endpoint_without_token(client):
     res = client.get("/test/protected")
     assert res.status_code == 401
-    assert res.json() == {"detail": "Not authenticated"}
+    assert res.json() == {"message": "Not authenticated"}

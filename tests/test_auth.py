@@ -18,7 +18,7 @@ def test_login_inactive_user(client, inactive_test_user):
         "/auth/token", data={"username": inactive_test_user["email"], "password": inactive_test_user["password"]}
     )
     assert res.status_code == 403
-    assert res.json() == {"detail": "Inactive user"}
+    assert res.json() == {"message": "Inactive user"}
 
 
 def test_login_active_user(client, test_user):
@@ -59,7 +59,7 @@ def test_incorrect_login(client, email, password, status_code):
 def test_incorrect_login_message(client):
     res = client.post("/auth/token", data={"username": "wrongemail@gmail.com", "password": "wrongpassword"})
     assert res.status_code == 401
-    assert res.json() == {"detail": "Incorrect username or password"}
+    assert res.json() == {"message": "Incorrect username or password"}
 
 
 # TODO przetestować czas ważności tokenu
@@ -100,7 +100,7 @@ def test_refresh_token(authorized_client, test_user):
     time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {old_refresh_token}"})
     assert res.status_code == 401
-    assert res.json() == {"detail": "Could not validate credentials"}
+    assert res.json() == {"message": "Could not validate credentials"}
 
     res = authorized_client.get("/test/protected", headers={"Authorization": f"Bearer {new_access_token}"})
     assert res.status_code == 200
@@ -125,16 +125,16 @@ def test_logout_user_with_refresh_token(authorized_client):
     refresh_token = cookies.get("refresh_token")
     res = authorized_client.post("/auth/logout", headers={"Authorization": f"Bearer {refresh_token}"})
     assert res.status_code == 401
-    assert res.json() == {"detail": "Could not validate credentials"}
+    assert res.json() == {"message": "Could not validate credentials"}
 
 
 def test_logout_user_with_invalid_token(client_with_invalid_token):
     res = client_with_invalid_token.post("/auth/logout")
     assert res.status_code == 401
-    assert res.json() == {"detail": "Could not validate credentials"}
+    assert res.json() == {"message": "Could not validate credentials"}
 
 
 def test_logout_user_without_token(client):
     res = client.post("/auth/logout")
     assert res.status_code == 401
-    assert res.json() == {"detail": "Not authenticated"}
+    assert res.json() == {"message": "Not authenticated"}

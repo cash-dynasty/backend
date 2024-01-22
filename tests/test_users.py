@@ -20,7 +20,7 @@ def test_create_user_that_already_exists(client, inactive_test_user):
         "/users/create", json={"email": inactive_test_user["email"], "password": inactive_test_user["password"]}
     )
     assert res.status_code == 409
-    assert res.json() == {"detail": "User already exists"}
+    assert res.json() == {"message": "User already exists"}
 
 
 def test_create_user_with_wrong_email(client):
