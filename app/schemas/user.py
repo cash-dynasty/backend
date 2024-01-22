@@ -36,6 +36,7 @@ class UserCreateRes(BaseModel):
 
 class UserActivationReq(BaseModel):
     email: EmailStr
+    token: str
 
 
 class UserActivationRes(BaseModel):

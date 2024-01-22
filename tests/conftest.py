@@ -1,6 +1,7 @@
 import os
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -56,7 +57,25 @@ def client(session):
 @pytest.fixture
 def inactive_test_user(client):
     user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
-    res = client.post("/users/create", json=user_data)
+    with patch(
+        "routers.users.generate_activation_token",
+        return_value={"token": "test_token", "expiration_date": datetime.utcnow() + timedelta(hours=1)},
+    ):
+        res = client.post("/users/create", json=user_data)
+    assert res.status_code == 201
+    new_user = res.json()
+    new_user["password"] = user_data["password"]
+    return new_user
+
+
+@pytest.fixture
+def inactive_expired_token_test_user(client):
+    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
+    with patch(
+        "routers.users.generate_activation_token",
+        return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
+    ):
+        res = client.post("/users/create", json=user_data)
     assert res.status_code == 201
     new_user = res.json()
     new_user["password"] = user_data["password"]
@@ -65,10 +84,11 @@ def inactive_test_user(client):
 
 @pytest.fixture
 def test_user(client, inactive_test_user):
-    res = client.patch("/users/activate", json={"email": inactive_test_user["email"]})
+    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "test_token"})
     assert res.status_code == 200
     new_user = res.json()
     new_user["password"] = inactive_test_user["password"]
+    new_user["id"] = inactive_test_user["id"]
     assert new_user["is_active"]
     return new_user
 

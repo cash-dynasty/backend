@@ -1,16 +1,21 @@
 import os
-import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import models.user
 import schemas.user
 from database import get_db
-from exceptions import UserAlreadyExistsException
+from exceptions import (
+    AlreadyActivatedException,
+    InvalidTokenException,
+    TokenExpiredException,
+    UserAlreadyExistsException,
+    UserNotFoundException,
+)
 from fastapi import APIRouter, Depends, status
-from sqlalchemy import desc
 from sqlalchemy.orm import Session
-from utils.auth import get_password_hash
+from utils.auth import get_password_hash, get_user_by_email
 from utils.email import send_user_create_confirmation_email
+from utils.generators import generate_activation_token
 
 
 router = APIRouter(
@@ -27,11 +32,12 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())
-    token = "".join(secrets.token_hex(32))
-    token_expiration_date = (datetime.utcnow() + timedelta(hours=1)).isoformat()
+    token = generate_activation_token()
     db.add(new_user)
     db.commit()
-    new_token = models.user.ActivationToken(token=token, user_id=new_user.id, expiration_date=token_expiration_date)
+    new_token = models.user.ActivationToken(
+        token=token["token"], user_id=new_user.id, expiration_date=token["expiration_date"]
+    )
     db.add(new_token)
     db.commit()
     if "TESTING" not in os.environ:
@@ -40,37 +46,32 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
 
 
 # @router.patch("/activate/{email}/{token}", response_model=schemas.user.UserActivationRes)
-@router.patch("/activate/{email}/{token}")
-async def activate_user(email: str, token: str, db: Session = Depends(get_db)):
-    user_data = (
-        db.query(models.user.User)
-        .outerjoin(models.user.ActivationToken)
-        .where(models.user.User.email == email)
-        .order_by(desc(models.user.ActivationToken.expiration_date))
+@router.patch("/activate", operation_id="activate_user", response_model=schemas.user.UserActivationRes)
+async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depends(get_db)):
+    user_data = get_user_by_email(db, user.email)
+    if not user_data:
+        raise UserNotFoundException
+    if user_data.is_active:
+        raise AlreadyActivatedException
+
+    token_data = (
+        db.query(models.user.ActivationToken)
+        .filter(models.user.ActivationToken.user_id == user_data.id)
+        .order_by(models.user.ActivationToken.expiration_date.desc())
+        .first()
     )
 
-    print(user_data)
+    if not token_data.token == user.token:
+        raise InvalidTokenException
+    if token_data.expiration_date < datetime.utcnow():
+        raise TokenExpiredException
 
-    # print(jsonable_encoder(user_data))
-    # print(jsonable_encoder(user_data.activation_tokens))
-    #
-    # sorted_tokens = sorted(user_data.activation_tokens, key=lambda x: x.expiration_date, reverse=True)
-    #
-    # print(jsonable_encoder(sorted_tokens))
-
-    # if not user_data:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    # if not user_data.activation_tokens[0].token == token:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
-    # if user_data.is_active:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already activated")
-    # if datetime.fromisoformat(str(user_data.activation_tokens[0].expiration_date)) < datetime.utcnow():
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token expired")
-    # user_data.is_active = True
-    # user_data.activation_tokens[0].expiration_date = datetime.utcnow().isoformat()
-    # db.commit()
-    # db.refresh(user_data)
-    return {"message": "OK"}
+    user_data.is_active = True
+    token_data.expiration_date = datetime.utcnow().isoformat()
+    db.commit()
+    db.refresh(user_data)
+    db.refresh(token_data)
+    return user_data
 
 
 # TODO zrobić endpoint do generowania nowego tokena aktywacyjnego
