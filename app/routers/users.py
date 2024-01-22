@@ -45,7 +45,6 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     return new_user
 
 
-# @router.patch("/activate/{email}/{token}", response_model=schemas.user.UserActivationRes)
 @router.patch("/activate", operation_id="activate_user", response_model=schemas.user.UserActivationRes)
 async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depends(get_db)):
     user_data = get_user_by_email(db, user.email)
