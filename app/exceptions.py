@@ -52,3 +52,47 @@ class UserAlreadyExistsException(ConflictException):
         super().__init__(
             message="User already exists",
         )
+
+
+class NotFoundException(HTTPException):
+    def __init__(self, message):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=message,
+        )
+
+
+class UserNotFoundException(NotFoundException):
+    def __init__(self):
+        super().__init__(
+            message="User not found",
+        )
+
+
+class BadRequestException(HTTPException):
+    def __init__(self, message):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        )
+
+
+class AlreadyActivatedException(BadRequestException):
+    def __init__(self):
+        super().__init__(
+            message="User already activated",
+        )
+
+
+class InvalidTokenException(BadRequestException):
+    def __init__(self):
+        super().__init__(
+            message="Invalid token",
+        )
+
+
+class TokenExpiredException(BadRequestException):
+    def __init__(self):
+        super().__init__(
+            message="Token expired",
+        )

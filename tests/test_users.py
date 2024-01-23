@@ -31,8 +31,34 @@ def test_create_user_with_wrong_email(client):
 
 # TODO test_create_user_with_wrong_password
 
-# TODO test_activate_user
-# 1. email i token zgodny - user aktywowany
-# 2. niepoprawny email
-# 3. nie ma takiego maila w bazie
-# 4. niepoprawny token dla danego usera
+
+def test_activate_user_with_correct_email_and_token(client, inactive_test_user):
+    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "test_token"})
+    assert res.status_code == 200
+    assert res.json() == {"email": inactive_test_user["email"], "is_active": True}
+
+
+def test_activate_user_with_wrong_email_and_correct_token(client):
+    res = client.patch("/users/activate", json={"email": "nouser@test.com", "token": "test_token"})
+    assert res.status_code == 404
+    assert res.json() == {"detail": "User not found"}
+
+
+def test_activate_user_with_wrong_token_and_correct_email(client, inactive_test_user):
+    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "wrong_token"})
+    assert res.status_code == 400
+    assert res.json() == {"detail": "Invalid token"}
+
+
+def test_activate_user_with_correct_email_and_expired_token(client, inactive_expired_token_test_user):
+    res = client.patch(
+        "/users/activate", json={"email": inactive_expired_token_test_user["email"], "token": "test_token"}
+    )
+    assert res.status_code == 400
+    assert res.json() == {"detail": "Token expired"}
+
+
+def test_activate_already_active_user(client, test_user):
+    res = client.patch("/users/activate", json={"email": test_user["email"], "token": "test_token"})
+    assert res.status_code == 400
+    assert res.json() == {"detail": "User already activated"}

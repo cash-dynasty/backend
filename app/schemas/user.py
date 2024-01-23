@@ -36,6 +36,14 @@ class UserCreateRes(BaseModel):
 
 class UserActivationReq(BaseModel):
     email: EmailStr
+    token: str
+
+
+class UserActivationRes(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    email: EmailStr
+    is_active: bool
 
 
 class ActivationToken(ActivationTokenBase):
