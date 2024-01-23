@@ -16,7 +16,7 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title="CashDynasty FastAPI Docs",
         version="0.1.0",
-        openapi_version="3.0.0",
+        openapi_version="3.0.3",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
