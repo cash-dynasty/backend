@@ -23,3 +23,18 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:community
+    ports:
+      - 9000:9000
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    profiles:
+      - donotstart
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

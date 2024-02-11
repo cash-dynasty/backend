@@ -14,3 +14,9 @@ lines_after_imports = 2
 
 [tool.ruff]
 line-length = 120
+
+[tool.coverage.run]
+source = ['app/']
+relative_files = true
+parallel = true
+branch = true
