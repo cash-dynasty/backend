@@ -50,12 +50,12 @@ def get_data_from_jwt_token(token: str, secret_key: str, algorithm: str):
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
         user_id = payload.get("uid")
         if user_id is None:
-            raise CouldNotValidateCredentialsException
+            raise CouldNotValidateCredentialsException()
         user_data = schemas.auth.TokenData(uid=user_id)
     except ExpiredSignatureError:
         raise UnauthorizedException("Token has expired.")
     except JWTError:
-        raise CouldNotValidateCredentialsException
+        raise CouldNotValidateCredentialsException()
     return user_data
 
 
@@ -63,13 +63,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     token_data = get_data_from_jwt_token(token, settings.ACCESS_TOKEN_SECRET_KEY, settings.ALGORITHM)
     user = get_user_by_id(db, token_data.uid)
     if user is None:
-        raise CouldNotValidateCredentialsException
+        raise CouldNotValidateCredentialsException()
     return user
 
 
 async def get_current_active_user(current_user: Annotated[schemas.user.User, Depends(get_current_user)]):
     if not current_user.is_active:
-        raise InactiveUserException
+        raise InactiveUserException()
     return current_user
 
 

@@ -28,7 +28,7 @@ router = APIRouter(
 async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(get_db)):
     user_data = db.query(models.user.User).filter(models.user.User.email == user.email).first()
     if user_data:
-        raise UserAlreadyExistsException
+        raise UserAlreadyExistsException()
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     new_user = models.user.User(**user.model_dump())

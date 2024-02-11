@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Annotated
 
 import schemas.auth
+import schemas.response
 import schemas.user
 from database import get_db
 from exceptions import CouldNotValidateCredentialsException, InactiveUserException, IncorrectUsernameOrPasswordException
@@ -17,6 +18,7 @@ from utils.auth import (
     get_data_from_jwt_token,
     oauth2_scheme,
 )
+from utils.response import generate_responses_for_doc
 
 
 router = APIRouter(
@@ -29,15 +31,24 @@ router = APIRouter(
 # TODO recaptcha
 
 
-@router.post("/token", response_model=schemas.auth.Token)
+@router.post(
+    "/token",
+    response_model=schemas.auth.Token,
+    responses=generate_responses_for_doc(
+        [
+            "IncorrectUsernameOrPasswordException",
+            "InactiveUserException",
+        ]
+    ),
+)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, db: Session = Depends(get_db)
 ):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
-        raise IncorrectUsernameOrPasswordException
+        raise IncorrectUsernameOrPasswordException()
     if not user.is_active:
-        raise InactiveUserException
+        raise InactiveUserException()
 
     user_id = user.id
     payload = {"uid": user_id}
@@ -64,11 +75,19 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/refresh", response_model=schemas.auth.Token)
+@router.post(
+    "/refresh",
+    response_model=schemas.auth.Token,
+    responses=generate_responses_for_doc(
+        [
+            "CouldNotValidateCredentialsException",
+        ]
+    ),
+)
 async def login_for_refresh_token(request: Request, response: Response, token: str = Depends(oauth2_scheme)):
     refresh_token_from_cookie = request.cookies.get("refresh_token")
     if token != refresh_token_from_cookie:
-        raise CouldNotValidateCredentialsException
+        raise CouldNotValidateCredentialsException()
 
     token_data = get_data_from_jwt_token(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
     user_id = token_data.uid
@@ -96,8 +115,8 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=schemas.response.MessageRes)
 async def logout(response: Response, current_user: Annotated[schemas.user.User, Depends(get_current_active_user)]):
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
-    return {"message": "logged out"}
+    return {"detail": "logged out"}

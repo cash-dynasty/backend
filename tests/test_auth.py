@@ -114,7 +114,7 @@ def test_refresh_token(authorized_client, test_user):
 def test_logout_user_with_access_token(authorized_client):
     res = authorized_client.post("/auth/logout")
     assert res.status_code == 200
-    assert res.json() == {"message": "logged out"}
+    assert res.json() == {"detail": "logged out"}
     cookies = res.cookies
     assert not cookies.get("access_token")
     assert not cookies.get("refresh_token")
