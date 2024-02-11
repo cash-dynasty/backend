@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: configure
 configure:
 	pip install -r requirements.txt
-	pip install -U pip
+	pip install -U pip setuptools
 	pre-commit install
 
 .PHONY: start
@@ -23,3 +23,11 @@ test:
 .PHONY: test-watch
 test-watch:
 	ptw -vs tests/
+
+.PHONY: coverage
+coverage:
+	coverage erase
+	coverage run -m pytest
+	coverage combine
+	coverage xml
+	coverage report
