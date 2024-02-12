@@ -84,13 +84,13 @@ def create_jwt_token(data: dict, expires_delta: timedelta, secret_key: str, algo
 
 def add_jwt_token_cookie(response: Response, name: str, value: str, expires: datetime | str | int):
     response.set_cookie(
-        name,
-        value,
-        expires,
-        expires,
-        "/",
-        None,
-        False,  # TODO przestawić na True dla komunikacji https (na środowisku)
-        True,
-        "lax",
+        key=name,
+        value=value,
+        max_age=expires,
+        expires=expires,
+        path="/",
+        domain=None,
+        secure=False,  # TODO przestawić na True dla komunikacji https (na środowisku)
+        httponly=True,
+        samesite="lax",
     )
