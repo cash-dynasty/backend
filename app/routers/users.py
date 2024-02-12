@@ -60,7 +60,7 @@ async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depe
         .first()
     )
 
-    if not token_data.token == user.token:
+    if token_data.token != user.token:
         raise InvalidTokenException
     if token_data.expiration_date < datetime.utcnow():
         raise TokenExpiredException
