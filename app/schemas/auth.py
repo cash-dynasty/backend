@@ -8,3 +8,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     uid: int
+    scopes: list[str] = []

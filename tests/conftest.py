@@ -127,3 +127,15 @@ def client_with_invalid_token(client, test_user):
     access_token = res.json()["access_token"]
     client.headers = {**client.headers, "Authorization": f"Bearer {access_token}x"}
     return client
+
+
+@pytest.fixture
+def client_with_admin_permissions(client, test_user):
+    access_token = create_jwt_token(
+        data={"uid": test_user["id"], "scopes": ["admin"]},
+        expires_delta=timedelta(days=1),
+        secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+    client.headers = {**client.headers, "Authorization": f"Bearer {access_token}"}
+    return client

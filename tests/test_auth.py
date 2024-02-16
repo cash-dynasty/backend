@@ -95,7 +95,7 @@ def test_refresh_token(authorized_client, test_user):
 
     res = authorized_client.get("/test/protected", headers={"Authorization": f"Bearer {old_access_token}"})
     assert res.status_code == 200
-    assert res.json() == {"message": "Hello from protected endpoint!"}
+    assert res.json() == {"detail": "Hello from protected endpoint!"}
 
     time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {old_refresh_token}"})
@@ -104,7 +104,7 @@ def test_refresh_token(authorized_client, test_user):
 
     res = authorized_client.get("/test/protected", headers={"Authorization": f"Bearer {new_access_token}"})
     assert res.status_code == 200
-    assert res.json() == {"message": "Hello from protected endpoint!"}
+    assert res.json() == {"detail": "Hello from protected endpoint!"}
 
     time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {new_refresh_token}"})
