@@ -52,7 +52,7 @@ def test_activate_user_with_wrong_email_and_correct_token(client):
     assert res.json() == {"detail": "User not found"}
 
 
-def test_activate_user_with_wrong_token_and_correct_email(client, inactive_test_user):
+def test_activate_user_with_correct_email_and_wrong_token(client, inactive_test_user):
     res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "wrong_token"})
     assert res.status_code == 400
     assert res.json() == {"detail": "Invalid token"}
@@ -67,7 +67,7 @@ def test_activate_user_with_correct_email_and_expired_token(client, inactive_tes
     assert res.json() == {"detail": "Token expired"}
 
 
-def test_activate_already_active_user(client, test_user):
+def test_activate_already_activated_user(client, test_user):
     res = client.patch("/users/activate", json={"email": test_user["email"], "token": "test_token"})
     assert res.status_code == 400
     assert res.json() == {"detail": "User already activated"}
