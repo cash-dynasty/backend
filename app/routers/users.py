@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 
 import models.user
@@ -40,8 +39,7 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     )
     db.add(new_token)
     db.commit()
-    if "TESTING" not in os.environ:
-        send_user_create_confirmation_email(new_user.email, new_token.token)
+    send_user_create_confirmation_email(new_user.email, new_token.token)
     return new_user
 
 

@@ -1,4 +1,6 @@
 import sys
+from datetime import datetime
+from unittest.mock import patch
 
 
 sys.path.append("./app")
@@ -9,10 +11,16 @@ import schemas.user  # noqa: E402
 
 
 def test_create_user(client):
-    res = client.post("/users/create", json={"email": "hello123@gmail.com", "password": "password123"})
+    with patch(
+        "routers.users.generate_activation_token",
+        return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
+    ):
+        with patch("routers.users.send_user_create_confirmation_email") as mocked_function:
+            res = client.post("/users/create", json={"email": "arydlewski@cashdynasty.pl", "password": "password123"})
+            mocked_function.assert_called_once_with("arydlewski@cashdynasty.pl", "test_token")
     new_user = schemas.user.UserCreateRes(**res.json())
     assert res.status_code == 201
-    assert new_user.email == "hello123@gmail.com"
+    assert new_user.email == "arydlewski@cashdynasty.pl"
 
 
 def test_create_user_that_already_exists(client, inactive_test_user):

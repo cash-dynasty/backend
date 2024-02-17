@@ -1,4 +1,3 @@
-import os
 import sys
 from datetime import datetime, timedelta
 from unittest.mock import patch
@@ -22,13 +21,6 @@ SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def test_mode():
-    os.environ["TESTING"] = "YES"
-    yield
-    os.environ.pop("TESTING", None)
 
 
 @pytest.fixture()
