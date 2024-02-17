@@ -46,35 +46,40 @@ def client(session):
     yield TestClient(app)
 
 
-@pytest.fixture
-def inactive_test_user(client):
-    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
+@pytest.fixture()
+def user_data():
+    return {"email": "arydlewski@cashdynasty.pl", "password": "password123"}
+
+
+@pytest.fixture()
+def inactive_test_user(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow() + timedelta(hours=1)},
     ):
-        res = client.post("/users/create", json=user_data)
+        with patch("routers.users.send_user_create_confirmation_email"):
+            res = client.post("/users/create", json=user_data)
     assert res.status_code == 201
     new_user = res.json()
     new_user["password"] = user_data["password"]
     return new_user
 
 
-@pytest.fixture
-def inactive_expired_token_test_user(client):
-    user_data = {"email": "sanjeev@gmail.com", "password": "password123"}
+@pytest.fixture()
+def inactive_test_user_with_expired_activation_token(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
     ):
-        res = client.post("/users/create", json=user_data)
+        with patch("routers.users.send_user_create_confirmation_email"):
+            res = client.post("/users/create", json=user_data)
     assert res.status_code == 201
     new_user = res.json()
     new_user["password"] = user_data["password"]
     return new_user
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_user(client, inactive_test_user):
     res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "test_token"})
     assert res.status_code == 200
@@ -85,7 +90,7 @@ def test_user(client, inactive_test_user):
     return new_user
 
 
-@pytest.fixture
+@pytest.fixture()
 def authorized_client(client, test_user):
     res = client.post(
         "/auth/token",
@@ -97,7 +102,7 @@ def authorized_client(client, test_user):
     return client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_with_expired_token(client, test_user):
     access_token = create_jwt_token(
         data={"uid": test_user["id"]},
@@ -109,7 +114,7 @@ def client_with_expired_token(client, test_user):
     return client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_with_invalid_token(client, test_user):
     res = client.post(
         "/auth/token",
@@ -121,7 +126,7 @@ def client_with_invalid_token(client, test_user):
     return client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_with_admin_permissions(client, test_user):
     access_token = create_jwt_token(
         data={"uid": test_user["id"], "scopes": ["admin"]},
