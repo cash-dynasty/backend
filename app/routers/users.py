@@ -49,9 +49,9 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
 async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depends(get_db)):
     user_data = get_user_by_email(db, user.email)
     if not user_data:
-        raise UserNotFoundException
+        raise UserNotFoundException()
     if user_data.is_active:
-        raise AlreadyActivatedException
+        raise AlreadyActivatedException()
 
     token_data = (
         db.query(models.user.ActivationToken)
@@ -61,9 +61,9 @@ async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depe
     )
 
     if token_data.token != user.token:
-        raise InvalidTokenException
+        raise InvalidTokenException()
     if token_data.expiration_date < datetime.utcnow():
-        raise TokenExpiredException
+        raise TokenExpiredException()
 
     user_data.is_active = True
     token_data.expiration_date = datetime.utcnow().isoformat()
