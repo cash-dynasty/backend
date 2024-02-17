@@ -52,7 +52,7 @@ def user_data():
 
 
 @pytest.fixture()
-def inactive_test_user(client, user_data):
+def inactive_user(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow() + timedelta(hours=1)},
@@ -66,7 +66,7 @@ def inactive_test_user(client, user_data):
 
 
 @pytest.fixture()
-def inactive_test_user_with_expired_activation_token(client, user_data):
+def inactive_user_with_expired_activation_token(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
@@ -80,21 +80,21 @@ def inactive_test_user_with_expired_activation_token(client, user_data):
 
 
 @pytest.fixture()
-def test_user(client, inactive_test_user):
-    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "test_token"})
+def user(client, inactive_user):
+    res = client.patch("/users/activate", json={"email": inactive_user["email"], "token": "test_token"})
     assert res.status_code == 200
     new_user = res.json()
-    new_user["password"] = inactive_test_user["password"]
-    new_user["id"] = inactive_test_user["id"]
+    new_user["password"] = inactive_user["password"]
+    new_user["id"] = inactive_user["id"]
     assert new_user["is_active"]
     return new_user
 
 
 @pytest.fixture()
-def authorized_client(client, test_user):
+def authorized_client(client, user):
     res = client.post(
         "/auth/token",
-        data={"username": test_user["email"], "password": test_user["password"]},
+        data={"username": user["email"], "password": user["password"]},
     )
     assert res.status_code == 200
     access_token = res.json()["access_token"]
@@ -103,9 +103,9 @@ def authorized_client(client, test_user):
 
 
 @pytest.fixture()
-def client_with_expired_token(client, test_user):
+def client_with_expired_token(client):
     access_token = create_jwt_token(
-        data={"uid": test_user["id"]},
+        data={"uid": 1},
         expires_delta=timedelta(-1),
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
@@ -115,22 +115,22 @@ def client_with_expired_token(client, test_user):
 
 
 @pytest.fixture()
-def client_with_invalid_token(client, test_user):
-    res = client.post(
-        "/auth/token",
-        data={"username": test_user["email"], "password": test_user["password"]},
+def client_with_invalid_token(client):
+    access_token = create_jwt_token(
+        data={"uid": 1},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+        secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
+        algorithm=settings.ALGORITHM,
     )
-    assert res.status_code == 200
-    access_token = res.json()["access_token"]
     client.headers = {**client.headers, "Authorization": f"Bearer {access_token}x"}
     return client
 
 
 @pytest.fixture()
-def client_with_admin_permissions(client, test_user):
+def client_with_admin_permissions(client, user):
     access_token = create_jwt_token(
-        data={"uid": test_user["id"], "scopes": ["admin"]},
-        expires_delta=timedelta(days=1),
+        data={"uid": user["id"], "scopes": ["admin"]},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         secret_key=settings.ACCESS_TOKEN_SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
