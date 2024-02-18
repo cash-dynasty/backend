@@ -10,7 +10,7 @@ def send_user_create_activation_email(email: str, token: str):
         html = file.read()
         html = html.replace("{{{TOKEN}}}", token)
     params = {
-        "from": "Developer CashDynasty <no-replay@cashdynasty.pl>",
+        "from": "Developer CashDynasty <no-reply@cashdynasty.pl>",
         "to": [email],
         "subject": "Chyba działa :D",
         "html": html,
