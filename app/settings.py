@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_MINUTES: int
     RESEND_API_KEY: str
+    ACTIVATION_TOKEN_EXPIRE_MINUTES: int
 
 
 settings = Settings()

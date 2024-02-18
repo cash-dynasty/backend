@@ -35,12 +35,7 @@ router = APIRouter(
 @router.post(
     "/token",
     response_model=schemas.auth.Token,
-    responses=generate_responses_for_doc(
-        [
-            "IncorrectUsernameOrPasswordException",
-            "InactiveUserException",
-        ]
-    ),
+    responses=generate_responses_for_doc(["IncorrectUsernameOrPasswordException", "InactiveUserException"]),
 )
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, db: Session = Depends(get_db)
@@ -80,11 +75,7 @@ async def login_for_access_token(
 @router.post(
     "/refresh",
     response_model=schemas.auth.Token,
-    responses=generate_responses_for_doc(
-        [
-            "CouldNotValidateCredentialsException",
-        ]
-    ),
+    responses=generate_responses_for_doc(["CouldNotValidateCredentialsException"]),
 )
 async def login_for_refresh_token(request: Request, response: Response, token: str = Depends(oauth2_scheme)):
     refresh_token_from_cookie = request.cookies.get("refresh_token")

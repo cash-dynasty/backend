@@ -55,7 +55,10 @@ def user_data():
 def inactive_user(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
-        return_value={"token": "test_token", "expiration_date": datetime.utcnow() + timedelta(hours=1)},
+        return_value={
+            "token": "test_token",
+            "expiration_date": datetime.utcnow() + timedelta(minutes=settings.ACTIVATION_TOKEN_EXPIRE_MINUTES),
+        },
     ):
         with patch("routers.users.send_user_create_activation_email"):
             res = client.post("/users/create", json=user_data)
