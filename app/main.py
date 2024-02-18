@@ -3,7 +3,7 @@ from fastapi.openapi.utils import get_openapi
 from routers import auth, test, users
 
 
-app = FastAPI()
+app = FastAPI(redoc_url=None)
 
 app.include_router(auth.router)
 app.include_router(test.router)
