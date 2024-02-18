@@ -15,7 +15,7 @@ def test_create_user(client, user_data):
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
     ):
-        with patch("routers.users.send_user_create_confirmation_email") as mocked_function:
+        with patch("routers.users.send_user_create_activation_email") as mocked_function:
             res = client.post("/users/create", json=user_data)
             mocked_function.assert_called_once_with("arydlewski@cashdynasty.pl", "test_token")
     new_user = schemas.user.UserCreateRes(**res.json())
@@ -47,7 +47,7 @@ def test_activate_user_with_correct_email_and_token(client, inactive_user):
 def test_activate_user_with_wrong_email_and_correct_token(client):
     res = client.patch("/users/activate", json={"email": "nouser@test.com", "token": "test_token"})
     assert res.status_code == 404
-    assert res.json() == {"detail": "User not found"}
+    assert res.json() == {"detail": "User not found"}  # TODO ukryć to info?
 
 
 def test_activate_user_with_correct_email_and_wrong_token(client, inactive_user):
@@ -68,4 +68,4 @@ def test_activate_user_with_correct_email_and_expired_token(client, inactive_use
 def test_activate_already_activated_user(client, user):
     res = client.patch("/users/activate", json={"email": user["email"], "token": "test_token"})
     assert res.status_code == 400
-    assert res.json() == {"detail": "User already activated"}
+    assert res.json() == {"detail": "User already activated"}  # TODO ukryć to info?

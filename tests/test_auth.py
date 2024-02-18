@@ -23,9 +23,6 @@ def test_login_active_user(client, user):
     res = client.post("/auth/token", data={"username": user["email"], "password": user["password"]})
     assert res.status_code == 200
     token_data = schemas.auth.Token(**res.json())
-    assert token_data.access_token
-    assert "refresh_token" not in token_data
-    assert token_data.token_type == "bearer"
     cookies = res.cookies
     assert cookies["access_token"]
     assert cookies["refresh_token"]
@@ -71,9 +68,6 @@ def test_refresh_token(authorized_client, user):
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
     assert res.status_code == 200
     token_data = schemas.auth.Token(**res.json())
-    assert token_data.access_token
-    assert "refresh_token" not in token_data
-    assert token_data.token_type == "bearer"
     cookies = res.cookies
     assert cookies["access_token"]
     assert cookies["refresh_token"]

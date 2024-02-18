@@ -44,13 +44,3 @@ class UserActivationRes(BaseModel):
 
     email: EmailStr
     is_active: bool
-
-
-class ActivationToken(ActivationTokenBase):
-    id: int
-
-
-class UserData(BaseModel):  # TODO czy potrzebne?
-    email: EmailStr
-    password: str
-    is_active: bool = False

@@ -13,7 +13,7 @@ from exceptions import (
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from utils.auth import get_password_hash, get_user_by_email
-from utils.email import send_user_create_confirmation_email
+from utils.email import send_user_create_activation_email
 from utils.generators import generate_activation_token
 
 
@@ -39,7 +39,7 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     )
     db.add(new_token)
     db.commit()
-    send_user_create_confirmation_email(new_user.email, new_token.token)
+    send_user_create_activation_email(new_user.email, new_token.token)
     return new_user
 
 

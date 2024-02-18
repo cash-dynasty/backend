@@ -57,7 +57,7 @@ def inactive_user(client, user_data):
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow() + timedelta(hours=1)},
     ):
-        with patch("routers.users.send_user_create_confirmation_email"):
+        with patch("routers.users.send_user_create_activation_email"):
             res = client.post("/users/create", json=user_data)
     assert res.status_code == 201
     new_user = res.json()
@@ -71,7 +71,7 @@ def inactive_user_with_expired_activation_token(client, user_data):
         "routers.users.generate_activation_token",
         return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
     ):
-        with patch("routers.users.send_user_create_confirmation_email"):
+        with patch("routers.users.send_user_create_activation_email"):
             res = client.post("/users/create", json=user_data)
     assert res.status_code == 201
     new_user = res.json()

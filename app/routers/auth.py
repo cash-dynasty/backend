@@ -74,7 +74,7 @@ async def login_for_access_token(
     add_jwt_token_cookie(response, "access_token", access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    return schemas.auth.Token(access_token=access_token, token_type="bearer")
+    return schemas.auth.Token(access_token=access_token)
 
 
 @router.post(
@@ -115,7 +115,7 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
     add_jwt_token_cookie(response, "access_token", new_access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", new_refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    return schemas.auth.Token(access_token=new_access_token, token_type="bearer")
+    return schemas.auth.Token(access_token=new_access_token)
 
 
 @router.post("/logout", response_model=schemas.response.MessageRes)
