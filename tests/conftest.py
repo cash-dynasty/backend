@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
@@ -14,6 +14,7 @@ from database import Base, get_db  # noqa: E402
 from main import app  # noqa: E402
 from settings import settings  # noqa: E402
 from utils.auth import create_jwt_token  # noqa: E402
+from utils.commons import get_current_time  # noqa: E402
 
 
 SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST
@@ -57,7 +58,7 @@ def inactive_user(client, user_data):
         "routers.users.generate_activation_token",
         return_value={
             "token": "test_token",
-            "expiration_date": datetime.utcnow() + timedelta(minutes=settings.ACTIVATION_TOKEN_EXPIRE_MINUTES),
+            "expiration_date": get_current_time() + timedelta(minutes=settings.ACTIVATION_TOKEN_EXPIRE_MINUTES),
         },
     ):
         with patch("routers.users.send_user_create_activation_email"):
@@ -72,7 +73,7 @@ def inactive_user(client, user_data):
 def inactive_user_with_expired_activation_token(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
-        return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
+        return_value={"token": "test_token", "expiration_date": get_current_time()},
     ):
         with patch("routers.users.send_user_create_activation_email"):
             res = client.post("/users/create", json=user_data)

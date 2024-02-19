@@ -12,6 +12,7 @@ from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from settings import settings
 from sqlalchemy.orm import Session
+from utils.commons import get_current_time
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -100,7 +101,7 @@ async def get_current_active_user(current_user: Annotated[schemas.user.User, Sec
 
 def create_jwt_token(data: dict, expires_delta: timedelta, secret_key: str, algorithm: str):
     to_encode = data.copy()
-    issued_at = datetime.utcnow()
+    issued_at = get_current_time()
     expiration_time = issued_at + expires_delta
     to_encode.update({"iat": issued_at, "exp": expiration_time})  # TODO przetestować, że te pola znajdują się w tokenie
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)

@@ -1,8 +1,10 @@
 import sys
-import time
+from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
 from jose import jwt
+from utils.commons import get_current_time
 
 
 sys.path.append("./app")
@@ -64,8 +66,10 @@ def test_refresh_token(authorized_client, user):
     access_token = cookies["access_token"]
     refresh_token = cookies["refresh_token"]
 
-    time.sleep(1)
-    res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+    with patch("utils.auth.get_current_time") as mocked_function:
+        mocked_function.return_value = get_current_time() + timedelta(seconds=1)
+        res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+
     assert res.status_code == 200
     token_data = schemas.auth.Token(**res.json())
     cookies = res.cookies
@@ -89,7 +93,6 @@ def test_refresh_token(authorized_client, user):
     assert res.status_code == 200
     assert res.json() == {"detail": "Hello from protected endpoint!"}
 
-    time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {old_refresh_token}"})
     assert res.status_code == 401
     assert res.json() == {"detail": "Could not validate credentials"}
@@ -98,7 +101,6 @@ def test_refresh_token(authorized_client, user):
     assert res.status_code == 200
     assert res.json() == {"detail": "Hello from protected endpoint!"}
 
-    time.sleep(1)
     res = authorized_client.post("/auth/refresh", headers={"Authorization": f"Bearer {new_refresh_token}"})
     assert res.status_code == 200
 

@@ -1,5 +1,4 @@
 import sys
-from datetime import datetime
 from unittest.mock import patch
 
 
@@ -8,12 +7,13 @@ sys.path.append("./app")
 
 import schemas.auth  # noqa: E402
 import schemas.user  # noqa: E402
+from utils.commons import get_current_time  # noqa: E402
 
 
 def test_create_user(client, user_data):
     with patch(
         "routers.users.generate_activation_token",
-        return_value={"token": "test_token", "expiration_date": datetime.utcnow()},
+        return_value={"token": "test_token", "expiration_date": get_current_time()},
     ):
         with patch("routers.users.send_user_create_activation_email") as mocked_function:
             res = client.post("/users/create", json=user_data)

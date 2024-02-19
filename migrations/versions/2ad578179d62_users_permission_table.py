@@ -1,8 +1,8 @@
 """users permission table
 
-Revision ID: 4640428c8190
+Revision ID: 2ad578179d62
 Revises: 5a0c8d249bad
-Create Date: 2024-02-16 11:28:29.513486
+Create Date: 2024-02-19 22:16:07.300425
 
 """
 from typing import Sequence
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4640428c8190'
+revision: str = '2ad578179d62'
 down_revision: str | None = '5a0c8d249bad'
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -26,7 +26,8 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     # ### end Alembic commands ###
 

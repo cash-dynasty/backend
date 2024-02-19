@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import models.user
 import schemas.user
 from database import get_db
@@ -13,6 +11,7 @@ from exceptions import (
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from utils.auth import get_password_hash, get_user_by_email
+from utils.commons import get_current_time
 from utils.email import send_user_create_activation_email
 from utils.generators import generate_activation_token
 
@@ -60,11 +59,11 @@ async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depe
 
     if token_data.token != user.token:
         raise InvalidTokenException()
-    if token_data.expiration_date < datetime.utcnow():
+    if token_data.expiration_date < get_current_time():
         raise TokenExpiredException()
 
     user_data.is_active = True
-    token_data.expiration_date = datetime.utcnow().isoformat()
+    token_data.expiration_date = get_current_time().isoformat()
     db.commit()
     db.refresh(user_data)
     db.refresh(token_data)
