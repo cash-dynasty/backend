@@ -1,18 +1,12 @@
-import sys
 from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+import schemas.auth
+import schemas.user
 from jose import jwt
+from settings import settings
 from utils.commons import get_current_time
-
-
-sys.path.append("./app")
-
-
-import schemas.auth  # noqa: E402
-import schemas.user  # noqa: E402
-from settings import settings  # noqa: E402
 
 
 def test_login_inactive_user(client, inactive_user):

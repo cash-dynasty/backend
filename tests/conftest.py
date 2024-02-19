@@ -1,20 +1,15 @@
-import sys
 from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+from database import Base, get_db
 from fastapi.testclient import TestClient
+from main import app
+from settings import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-
-sys.path.append("./app")
-
-from database import Base, get_db  # noqa: E402
-from main import app  # noqa: E402
-from settings import settings  # noqa: E402
-from utils.auth import create_jwt_token  # noqa: E402
-from utils.commons import get_current_time  # noqa: E402
+from utils.auth import create_jwt_token
+from utils.commons import get_current_time
 
 
 SQLALCHEMY_DATABASE_URL = settings.POSTGRESQL_CONNECTION_URL_TEST

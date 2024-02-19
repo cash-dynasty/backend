@@ -6,6 +6,9 @@
 ## Configuration
 1. Run commands:
 ```bash
+# set PYTHONPATH
+export PYTHONPATH="$(pwd)/app"
+
 # create a virtual environment
 python -m venv venv
 

@@ -1,9 +1,3 @@
-import sys
-
-
-sys.path.append("./app")
-
-
 def test_read_public_endpoint(client):
     res = client.get("/test/")
     assert res.status_code == 200

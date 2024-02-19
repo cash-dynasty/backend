@@ -1,13 +1,8 @@
-import sys
 from unittest.mock import patch
 
-
-sys.path.append("./app")
-
-
-import schemas.auth  # noqa: E402
-import schemas.user  # noqa: E402
-from utils.commons import get_current_time  # noqa: E402
+import schemas.auth
+import schemas.user
+from utils.commons import get_current_time
 
 
 def test_create_user(client, user_data):
