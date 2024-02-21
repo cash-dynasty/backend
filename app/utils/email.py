@@ -8,7 +8,7 @@ resend.api_key = settings.RESEND_API_KEY
 def send_user_create_activation_email(email: str, token: str):
     with open(f"{ROOT_DIR}/templates/activation_email.html", "r") as file:
         html = file.read()
-        html = html.replace("{{{TOKEN}}}", token)
+        html = html.replace("{{{EMAIL}}}", email).replace("{{{TOKEN}}}", token)
     params = {
         "from": "Developer CashDynasty <no-reply@cashdynasty.pl>",
         "to": [email],
