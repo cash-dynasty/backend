@@ -2,13 +2,16 @@ from typing import Annotated
 
 import schemas.user
 from fastapi import APIRouter, Depends, Security
+from settings import settings
 from utils.auth import get_current_active_user
 
+
+include_in_schema = True if settings.ENVIRONMENT in ["local", "dev"] else False
 
 router = APIRouter(
     prefix="/test",
     tags=["test"],
-    # include_in_schema=False,
+    include_in_schema=include_in_schema,
 )
 
 

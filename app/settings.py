@@ -10,6 +10,7 @@ load_dotenv()
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
+    ENVIRONMENT: str = "prod"
     POSTGRESQL_CONNECTION_URL: str
     POSTGRESQL_CONNECTION_URL_TEST: str
     ACCESS_TOKEN_SECRET_KEY: str
