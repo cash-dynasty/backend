@@ -6,7 +6,7 @@ import schemas.auth
 import schemas.user
 from database import get_db
 from exceptions import CouldNotValidateCredentialsException, InactiveUserException, UnauthorizedException
-from fastapi import Depends, Response, Security
+from fastapi import Depends, Response
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
@@ -16,10 +16,7 @@ from utils.commons import get_current_time
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="auth/token",
-    scopes={"admin": "admin"},
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 def verify_password(plain_password: str, hashed_password: str):
@@ -92,8 +89,7 @@ async def get_current_user(
     return user
 
 
-# async def get_current_active_user(current_user: Annotated[schemas.user.User, Depends(get_current_user)]):
-async def get_current_active_user(current_user: Annotated[schemas.user.User, Security(get_current_user, scopes=[])]):
+async def get_current_active_user(current_user: Annotated[schemas.user.User, Depends(get_current_user)]):
     if not current_user.is_active:
         raise InactiveUserException()
     return current_user

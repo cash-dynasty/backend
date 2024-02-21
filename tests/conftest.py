@@ -44,7 +44,7 @@ def client(session):
 
 @pytest.fixture()
 def user_data():
-    return {"email": "arydlewski@cashdynasty.pl", "password": "password123"}
+    return {"email": "test@test.pl", "password": "password123"}
 
 
 @pytest.fixture()

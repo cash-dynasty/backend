@@ -35,11 +35,11 @@ def test_login_active_user(client, user):
     "email, password, status_code",
     [
         ("wrongemail@gmail.com", "password123", 401),
-        ("arydlewski@cashdynasty.pl", "wrongpassword", 401),
+        ("test@test.pl", "wrongpassword", 401),
         ("wrongemail@gmail.com", "wrongpassword", 401),
         ("wrongemail@gmail", "wrongpassword", 401),
         (None, "password123", 422),
-        ("arydlewski@cashdynasty.pl", None, 422),
+        ("test@test.pl", None, 422),
     ],
 )
 def test_incorrect_login(client, email, password, status_code):

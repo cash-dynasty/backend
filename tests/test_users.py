@@ -12,10 +12,10 @@ def test_create_user(client, user_data):
     ):
         with patch("routers.users.send_user_create_activation_email") as mocked_function:
             res = client.post("/users/create", json=user_data)
-            mocked_function.assert_called_once_with("arydlewski@cashdynasty.pl", "test_token")
+            mocked_function.assert_called_once_with("test@test.pl", "test_token")
     new_user = schemas.user.UserCreateRes(**res.json())
     assert res.status_code == 201
-    assert new_user.email == "arydlewski@cashdynasty.pl"
+    assert new_user.email == "test@test.pl"
 
 
 def test_create_user_that_already_exists(client, inactive_user):
