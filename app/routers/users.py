@@ -1,6 +1,3 @@
-import os
-from datetime import datetime
-
 import models.user
 import schemas.user
 from database import get_db
@@ -14,7 +11,8 @@ from exceptions import (
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from utils.auth import get_password_hash, get_user_by_email
-from utils.email import send_user_create_confirmation_email
+from utils.commons import get_current_time
+from utils.email import send_user_create_activation_email
 from utils.generators import generate_activation_token
 
 
@@ -40,8 +38,7 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
     )
     db.add(new_token)
     db.commit()
-    if "TESTING" not in os.environ:
-        send_user_create_confirmation_email(new_user.email, new_token.token)
+    send_user_create_activation_email(new_user.email, new_token.token)
     return new_user
 
 
@@ -49,9 +46,9 @@ async def create_user(user: schemas.user.UserCreateReq, db: Session = Depends(ge
 async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depends(get_db)):
     user_data = get_user_by_email(db, user.email)
     if not user_data:
-        raise UserNotFoundException
+        raise UserNotFoundException()
     if user_data.is_active:
-        raise AlreadyActivatedException
+        raise AlreadyActivatedException()
 
     token_data = (
         db.query(models.user.ActivationToken)
@@ -61,12 +58,12 @@ async def activate_user(user: schemas.user.UserActivationReq, db: Session = Depe
     )
 
     if token_data.token != user.token:
-        raise InvalidTokenException
-    if token_data.expiration_date < datetime.utcnow():
-        raise TokenExpiredException
+        raise InvalidTokenException()
+    if token_data.expiration_date < get_current_time():
+        raise TokenExpiredException()
 
     user_data.is_active = True
-    token_data.expiration_date = datetime.utcnow().isoformat()
+    token_data.expiration_date = get_current_time().isoformat()
     db.commit()
     db.refresh(user_data)
     db.refresh(token_data)

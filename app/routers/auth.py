@@ -16,6 +16,7 @@ from utils.auth import (
     create_jwt_token,
     get_current_active_user,
     get_data_from_jwt_token,
+    get_user_permissions,
     oauth2_scheme,
 )
 from utils.response import generate_responses_for_doc
@@ -34,12 +35,7 @@ router = APIRouter(
 @router.post(
     "/token",
     response_model=schemas.auth.Token,
-    responses=generate_responses_for_doc(
-        [
-            "IncorrectUsernameOrPasswordException",
-            "InactiveUserException",
-        ]
-    ),
+    responses=generate_responses_for_doc(["IncorrectUsernameOrPasswordException", "InactiveUserException"]),
 )
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, db: Session = Depends(get_db)
@@ -51,7 +47,8 @@ async def login_for_access_token(
         raise InactiveUserException()
 
     user_id = user.id
-    payload = {"uid": user_id}
+    user_permissions = get_user_permissions(db, user_id)
+    payload = {"uid": user_id, "scopes": user_permissions}
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
@@ -72,17 +69,13 @@ async def login_for_access_token(
     add_jwt_token_cookie(response, "access_token", access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return schemas.auth.Token(access_token=access_token)
 
 
 @router.post(
     "/refresh",
     response_model=schemas.auth.Token,
-    responses=generate_responses_for_doc(
-        [
-            "CouldNotValidateCredentialsException",
-        ]
-    ),
+    responses=generate_responses_for_doc(["CouldNotValidateCredentialsException"]),
 )
 async def login_for_refresh_token(request: Request, response: Response, token: str = Depends(oauth2_scheme)):
     refresh_token_from_cookie = request.cookies.get("refresh_token")
@@ -91,7 +84,8 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
 
     token_data = get_data_from_jwt_token(token, settings.REFRESH_TOKEN_SECRET_KEY, settings.ALGORITHM)
     user_id = token_data.uid
-    payload = {"uid": user_id}
+    user_permissions = token_data.scopes
+    payload = {"uid": user_id, "scopes": user_permissions}
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
@@ -112,7 +106,7 @@ async def login_for_refresh_token(request: Request, response: Response, token: s
     add_jwt_token_cookie(response, "access_token", new_access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     add_jwt_token_cookie(response, "refresh_token", new_refresh_token, settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60)
 
-    return {"access_token": new_access_token, "token_type": "bearer"}
+    return schemas.auth.Token(access_token=new_access_token)
 
 
 @router.post("/logout", response_model=schemas.response.MessageRes)

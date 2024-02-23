@@ -1,24 +1,25 @@
-import sys
+from unittest.mock import patch
+
+import schemas.auth
+import schemas.user
+from utils.commons import get_current_time
 
 
-sys.path.append("./app")
-
-
-import schemas.auth  # noqa: E402
-import schemas.user  # noqa: E402
-
-
-def test_create_user(client):
-    res = client.post("/users/create", json={"email": "hello123@gmail.com", "password": "password123"})
+def test_create_user(client, user_data):
+    with patch(
+        "routers.users.generate_activation_token",
+        return_value={"token": "test_token", "expiration_date": get_current_time()},
+    ):
+        with patch("routers.users.send_user_create_activation_email") as mocked_function:
+            res = client.post("/users/create", json=user_data)
+            mocked_function.assert_called_once_with("test@test.pl", "test_token")
     new_user = schemas.user.UserCreateRes(**res.json())
     assert res.status_code == 201
-    assert new_user.email == "hello123@gmail.com"
+    assert new_user.email == "test@test.pl"
 
 
-def test_create_user_that_already_exists(client, inactive_test_user):
-    res = client.post(
-        "/users/create", json={"email": inactive_test_user["email"], "password": inactive_test_user["password"]}
-    )
+def test_create_user_that_already_exists(client, inactive_user):
+    res = client.post("/users/create", json={"email": inactive_user["email"], "password": inactive_user["password"]})
     assert res.status_code == 409
     assert res.json() == {"detail": "User already exists"}
 
@@ -32,33 +33,34 @@ def test_create_user_with_wrong_email(client):
 # TODO test_create_user_with_wrong_password
 
 
-def test_activate_user_with_correct_email_and_token(client, inactive_test_user):
-    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "test_token"})
+def test_activate_user_with_correct_email_and_token(client, inactive_user):
+    res = client.patch("/users/activate", json={"email": inactive_user["email"], "token": "test_token"})
     assert res.status_code == 200
-    assert res.json() == {"email": inactive_test_user["email"], "is_active": True}
+    assert res.json() == {"email": inactive_user["email"], "is_active": True}
 
 
 def test_activate_user_with_wrong_email_and_correct_token(client):
     res = client.patch("/users/activate", json={"email": "nouser@test.com", "token": "test_token"})
     assert res.status_code == 404
-    assert res.json() == {"detail": "User not found"}
+    assert res.json() == {"detail": "User not found"}  # TODO ukryć to info?
 
 
-def test_activate_user_with_wrong_token_and_correct_email(client, inactive_test_user):
-    res = client.patch("/users/activate", json={"email": inactive_test_user["email"], "token": "wrong_token"})
+def test_activate_user_with_correct_email_and_wrong_token(client, inactive_user):
+    res = client.patch("/users/activate", json={"email": inactive_user["email"], "token": "wrong_token"})
     assert res.status_code == 400
     assert res.json() == {"detail": "Invalid token"}
 
 
-def test_activate_user_with_correct_email_and_expired_token(client, inactive_expired_token_test_user):
+def test_activate_user_with_correct_email_and_expired_token(client, inactive_user_with_expired_activation_token):
     res = client.patch(
-        "/users/activate", json={"email": inactive_expired_token_test_user["email"], "token": "test_token"}
+        "/users/activate",
+        json={"email": inactive_user_with_expired_activation_token["email"], "token": "test_token"},
     )
     assert res.status_code == 400
     assert res.json() == {"detail": "Token expired"}
 
 
-def test_activate_already_active_user(client, test_user):
-    res = client.patch("/users/activate", json={"email": test_user["email"], "token": "test_token"})
+def test_activate_already_activated_user(client, user):
+    res = client.patch("/users/activate", json={"email": user["email"], "token": "test_token"})
     assert res.status_code == 400
-    assert res.json() == {"detail": "User already activated"}
+    assert res.json() == {"detail": "User already activated"}  # TODO ukryć to info?

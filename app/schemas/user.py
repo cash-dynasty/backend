@@ -44,7 +44,3 @@ class UserActivationRes(BaseModel):
 
     email: EmailStr
     is_active: bool
-
-
-class ActivationToken(ActivationTokenBase):
-    id: int
